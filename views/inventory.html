@@ -1,4 +1,4 @@
-<!-- CES Hub Stock Inventory — Canonical V5 Equipment Dashboard -->
+<!-- CES Hub Stock Inventory — Fast Cache V6 Equipment Dashboard -->
 <section id="view-inventory" class="hidden stockpro-page ces-stock-v5-page">
   <div class="stockpro-shell">
     <div class="stockpro-header-card">
@@ -6,7 +6,7 @@
         <div class="stockpro-icon blue"><i class="fas fa-boxes-stacked"></i></div>
         <div><h1>Equipment Dashboard</h1><p>Inventory + Workflow + Accessories</p></div>
       </div>
-      <div class="stockpro-actions">
+      <div class="stockpro-actions"><span id="siDataFreshness" class="csv6-freshness stale"><i class="fas fa-database"></i> Preloaded data</span>
         <button class="sp-btn ghost csv5-icon-btn" onclick="initStockInventoryModule(true)" title="Refresh"><i class="fas fa-sync-alt"></i></button>
         <button class="sp-btn ghost csv5-icon-btn" onclick="si_openInventoryHistory()" title="Activity History"><i class="fas fa-history"></i></button>
         <button class="sp-btn warn csv5-icon-btn" onclick="si_openAccessoryLowStockAlerts()" title="Accessory Alerts"><i class="fas fa-bell"></i><span id="siLowStockHeaderCount" class="sp-mini-badge">0</span></button>

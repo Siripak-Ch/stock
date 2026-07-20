@@ -1,8 +1,8 @@
-<!-- CES Hub Stock Inventory — Canonical V5 Check Stock -->
+<!-- CES Hub Stock Inventory — Fast Cache V6 Check Stock -->
 <section id="view-check_stock" class="hidden stockpro-page ces-stock-v5-page">
   <div class="stockpro-shell">
     <div class="stockpro-header-card">
-      <div class="stockpro-title-wrap"><div class="stockpro-icon orange"><i class="fas fa-qrcode"></i></div><div><h1>Check Stock</h1><p>ID/SN Lookup + Workflow + Activity Log</p></div></div>
+      <div class="stockpro-title-wrap"><div class="stockpro-icon orange"><i class="fas fa-qrcode"></i></div><div><h1>Check Stock</h1><p>ID/SN Lookup + Scan CAL/PM + Check-Out + Activity Log</p></div></div>
       <div class="stockpro-actions"><button class="sp-btn ghost" onclick="initStockCheckModule(true)"><i class="fas fa-sync-alt"></i> Refresh Log</button></div>
     </div>
 
@@ -10,7 +10,11 @@
 
     <div class="stockpro-hero">
       <p class="sp-muted" style="text-align:center;font-weight:900;margin-bottom:10px;">เลือกโหมดการทำงาน</p>
-      <div class="sp-mode-grid"><div id="scModeIn" class="sp-mode active in" onclick="sc_setMode('CHECK-IN')"><i class="fas fa-sign-in-alt"></i><br>Return / Check-In<br><span class="sp-sub">เช่ายืม → รอสอบเทียบ</span></div><div id="scModeOut" class="sp-mode" onclick="sc_setMode('CHECK-OUT')"><i class="fas fa-sign-out-alt"></i><br>Check-Out<br><span class="sp-sub">พร้อมส่ง → เช่ายืม</span></div></div>
+      <div class="sp-mode-grid csv6-three-mode">
+        <div id="scModeIn" class="sp-mode active in" onclick="sc_setMode('CHECK-IN')"><i class="fas fa-sign-in-alt"></i><br>Return / Check-In<br><span class="sp-sub">เช่ายืม → รอสอบเทียบ</span></div>
+        <div id="scModeCal" class="sp-mode" onclick="sc_setMode('CAL/PM')"><i class="fas fa-screwdriver-wrench"></i><br>Scan CAL/PM<br><span class="sp-sub">รอสอบเทียบ → พร้อมส่ง</span></div>
+        <div id="scModeOut" class="sp-mode" onclick="sc_setMode('CHECK-OUT')"><i class="fas fa-sign-out-alt"></i><br>Check-Out<br><span class="sp-sub">พร้อมส่ง → เช่ายืม</span></div>
+      </div>
       <div id="scModeText" class="sp-muted" style="text-align:center;margin-top:8px;color:#059669;font-weight:900">● โหมด: รับคืนอุปกรณ์</div>
     </div>
 

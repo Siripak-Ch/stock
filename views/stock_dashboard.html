@@ -1,4 +1,4 @@
-<!-- CES Hub Stock Inventory — Canonical V5 Dashboard -->
+<!-- CES Hub Stock Inventory — Fast Cache V6 Dashboard -->
 <section id="view-stock_dashboard" class="hidden stockpro-page ces-stock-v5-page">
   <div class="stockpro-shell">
     <div class="stockpro-header-card">
@@ -6,7 +6,7 @@
         <div class="stockpro-icon blue"><i class="fas fa-chart-pie"></i></div>
         <div><h1>Infusion Pump Dashboard</h1><p>Stock Performance Tracking</p></div>
       </div>
-      <div class="stockpro-actions">
+      <div class="stockpro-actions"><span id="sdDataFreshness" class="csv6-freshness stale"><i class="fas fa-database"></i> Preloaded data</span>
         <button class="sp-btn ghost csv5-icon-btn" onclick="initStockDashboardModule(true)" title="Refresh"><i class="fas fa-sync-alt"></i></button>
         <button class="sp-btn warn csv5-icon-btn" onclick="sd_openAlertPopup()" title="Alerts"><i class="fas fa-bell"></i><span id="sdAlertHeaderCount" class="sp-mini-badge">0</span></button>
         <button class="sp-btn dark csv5-icon-btn" onclick="sd_exportSummary()" title="Export CSV"><i class="fas fa-file-csv"></i></button>
