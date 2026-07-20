@@ -1,124 +1,61 @@
-<!-- ============================================================
-     CES Stock Pro V6 — Stock_Dashboard_index.html
-     View ID: view-stock_dashboard
-============================================================ -->
-
-<style id="stock-dashboard-v17-static-style">
-  #view-stock_dashboard.stockpro-page{font-family:'Prompt',Inter,Arial,sans-serif;color:#1e293b;}
-  #view-stock_dashboard .stockpro-shell{max-width:1280px;margin:0 auto;padding:0 0 24px;}
-  #view-stock_dashboard .stockpro-header-card{background:#fff;border:1px solid #e8eef6;border-radius:22px;padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 10px 28px rgba(30,58,138,.06);margin-bottom:18px;}
-  #view-stock_dashboard .stockpro-title-wrap{display:flex;align-items:center;gap:14px}
-  #view-stock_dashboard .stockpro-title-wrap h1{font-size:23px;font-weight:900;margin:0;color:#0f172a;letter-spacing:-.02em}
-  #view-stock_dashboard .stockpro-title-wrap p{font-size:11px;text-transform:uppercase;letter-spacing:.34em;color:#64748b;font-weight:800;margin:4px 0 0}
-  #view-stock_dashboard .stockpro-icon{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 10px 20px rgba(15,23,42,.08)}
-  #view-stock_dashboard .stockpro-icon.emerald{background:#047857}
-  #view-stock_dashboard .stockpro-actions{display:flex;gap:8px;align-items:center}
-  #view-stock_dashboard .sp-btn{border:0;border-radius:12px;font-weight:900;cursor:pointer;transition:.18s;display:inline-flex;gap:8px;align-items:center;justify-content:center}
-  #view-stock_dashboard .sd-icon-only{width:40px;height:40px;min-width:40px;padding:0;font-size:0}
-  #view-stock_dashboard .sd-icon-only i{font-size:15px}
-  #view-stock_dashboard .sp-btn.ghost{background:#fff;color:#0f172a;border:1px solid #dbe3ef}
-  #view-stock_dashboard .sp-btn.warn{background:#f59e0b;color:#fff}
-  #view-stock_dashboard .sp-btn.dark{background:#0f172a;color:#fff}
-  #view-stock_dashboard .sp-mini-badge{position:absolute;margin-left:22px;margin-top:-24px;min-width:20px;height:20px;border-radius:999px;background:#ef4444;color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid #fff;padding:0 4px}
-  #view-stock_dashboard .stockpro-model-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}
-  #view-stock_dashboard .stockpro-filter-card{background:#fff;border:1px solid #e8eef6;border-radius:18px;padding:12px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;margin-bottom:16px;box-shadow:0 4px 16px rgba(30,58,138,.05)}
-  #view-stock_dashboard .sp-search{position:relative}
-  #view-stock_dashboard .sp-search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8}
-  #view-stock_dashboard .stockpro-filter-card input,#view-stock_dashboard .stockpro-filter-card select{width:100%;border:1px solid #dbe3ef;border-radius:12px;background:#f8fbff;padding:10px 12px;font-size:13px;outline:none;color:#334155}
-  #view-stock_dashboard .stockpro-filter-card input{padding-left:36px}
-  #view-stock_dashboard .stockpro-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
-  #view-stock_dashboard .stockpro-two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-  #view-stock_dashboard .stockpro-card{background:#fff;border:1px solid #e8eef6;border-radius:18px;padding:16px;box-shadow:0 4px 16px rgba(30,58,138,.05);overflow:hidden}
-  #view-stock_dashboard .stockpro-card h3{font-size:15px;font-weight:900;color:#0f172a;margin:0 0 12px;display:flex;align-items:center;gap:8px}
-  #view-stock_dashboard .stockpro-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
-  #view-stock_dashboard .stockpro-chart-box{height:260px;position:relative}
-  @media(max-width:1100px){#view-stock_dashboard .stockpro-kpi-grid{grid-template-columns:repeat(2,1fr)}#view-stock_dashboard .stockpro-two-col,#view-stock_dashboard .stockpro-model-grid{grid-template-columns:1fr}#view-stock_dashboard .stockpro-filter-card{grid-template-columns:1fr}#view-stock_dashboard .stockpro-header-card{align-items:flex-start;flex-direction:column}}
-</style>
-
-<section id="view-stock_dashboard" class="hidden stockpro-page">
+<!-- CES Hub Stock Inventory — Canonical V5 Dashboard -->
+<section id="view-stock_dashboard" class="hidden stockpro-page ces-stock-v5-page">
   <div class="stockpro-shell">
-
     <div class="stockpro-header-card">
       <div class="stockpro-title-wrap">
-        <div class="stockpro-icon emerald"><i class="fas fa-chart-pie"></i></div>
-        <div>
-          <h1>Stock Dashboard</h1>
-          <p>CES Inventory Overview</p>
-        </div>
+        <div class="stockpro-icon blue"><i class="fas fa-chart-pie"></i></div>
+        <div><h1>Infusion Pump Dashboard</h1><p>Stock Performance Tracking</p></div>
       </div>
       <div class="stockpro-actions">
-        <button class="sp-btn ghost sd-icon-only" onclick="initStockDashboardModule(true)" title="Refresh / Resync"><i class="fas fa-sync-alt"></i></button>
-        <button class="sp-btn warn sd-icon-only" onclick="sd_openAlertPopup()" title="Alerts"><i class="fas fa-bell"></i><span id="sdAlertHeaderCount" class="sp-mini-badge">0</span></button>
-        <button class="sp-btn dark sd-icon-only" onclick="sd_exportSummary()" title="Export Summary"><i class="fas fa-file-excel"></i></button>
+        <button class="sp-btn ghost csv5-icon-btn" onclick="initStockDashboardModule(true)" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+        <button class="sp-btn warn csv5-icon-btn" onclick="sd_openAlertPopup()" title="Alerts"><i class="fas fa-bell"></i><span id="sdAlertHeaderCount" class="sp-mini-badge">0</span></button>
+        <button class="sp-btn dark csv5-icon-btn" onclick="sd_exportSummary()" title="Export CSV"><i class="fas fa-file-csv"></i></button>
+        <button class="sp-btn ghost csv5-icon-btn" onclick="sd_printDashboard()" title="Print / PDF"><i class="fas fa-print"></i></button>
       </div>
     </div>
 
     <div id="sdModelCards" class="stockpro-model-grid"></div>
 
-    <div class="stockpro-filter-card">
-      <div class="sp-search">
-        <i class="fas fa-search"></i>
-        <input id="sdSearch" oninput="sd_renderFiltered()" placeholder="ค้นหา ID, SN, ผู้ยืม, สถานที่...">
-      </div>
-      <select id="sdBrand" onchange="sd_renderFiltered()"><option value="all">แบรนด์ทั้งหมด</option></select>
-      <select id="sdModel" onchange="sd_renderFiltered()"><option value="all">โมเดลทั้งหมด</option></select>
-      <select id="sdStatus" onchange="sd_renderFiltered()"><option value="all">สถานะทั้งหมด</option></select>
+    <div class="stockpro-filter-card csv5-dashboard-filters">
+      <div class="sp-search"><i class="fas fa-search"></i><input id="sdSearch" oninput="sd_renderFiltered()" placeholder="ค้นหา ID / SN / สถานที่"></div>
+      <select id="sdBrand" onchange="sd_onBrandChange()"><option value="all">ทุกแบรนด์</option></select>
+      <select id="sdModel" onchange="sd_renderFiltered()"><option value="all">ทุกโมเดล</option></select>
+      <select id="sdStatus" onchange="sd_renderFiltered()"><option value="all">ทุกสถานะ</option></select>
+      <select id="sdLocation" onchange="sd_renderFiltered()"><option value="all">ทุกสถานที่</option></select>
     </div>
 
-    <div id="sdKpiGrid" class="stockpro-kpi-grid"></div>
+    <div id="sdKpiGrid" class="stockpro-kpi-grid csv5-kpi-six"></div>
 
     <div class="stockpro-two-col">
       <div class="stockpro-card">
-        <h3><i class="fas fa-chart-pie text-indigo-500"></i> สัดส่วนสถานะอุปกรณ์</h3>
+        <h3><i class="fas fa-chart-pie text-blue-500"></i> Status Share</h3>
         <div class="stockpro-chart-box"><canvas id="sdStatusChart"></canvas></div>
       </div>
       <div class="stockpro-card">
-        <h3><i class="fas fa-chart-bar text-emerald-500"></i> อุปกรณ์ถูกยืมรายเดือน</h3>
-        <div class="stockpro-chart-box"><canvas id="sdRentalChart"></canvas></div>
+        <h3><i class="fas fa-chart-column text-indigo-500"></i> Model × Status</h3>
+        <div class="stockpro-chart-box"><canvas id="sdModelStatusChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="stockpro-two-col">
+      <div class="stockpro-card">
+        <h3><i class="fas fa-chart-bar text-cyan-500"></i> Brand Share</h3>
+        <div class="stockpro-chart-box"><canvas id="sdBrandChart"></canvas></div>
+      </div>
+      <div class="stockpro-card">
+        <div class="stockpro-card-head"><h3><i class="fas fa-location-dot text-rose-500"></i> Top Location</h3><span id="sdLocationCount" class="sp-pill">0 locations</span></div>
+        <div id="sdTopLocationTable"></div>
       </div>
     </div>
 
     <div class="stockpro-card">
-      <div class="stockpro-card-head">
-        <h3><i class="fas fa-file-contract text-blue-500"></i> รายการสัญญา / Rental Contract Summary</h3>
-        <span id="sdContractCount" class="sp-pill">0 locations</span>
-      </div>
-      <div class="stockpro-filter-card sp-contract-filter-card" style="grid-template-columns:1fr 1fr auto;margin-bottom:12px;box-shadow:none;">
-        <select id="sdContractFilter" onchange="sd_renderContractSummary()">
-          <option value="all">ทุกสัญญา</option>
-          <option value="overdue">หมดสัญญา / Overdue</option>
-          <option value="active">กำลังใช้งาน</option>
-          <option value="completed">เรียบร้อยแล้ว / Completed</option>
-        </select>
-        <select id="sdContractSort" onchange="sd_renderContractSummary()">
-          <option value="risk">Sort: Risk first</option>
-          <option value="location">Sort: Location A-Z</option>
-          <option value="due_asc">Sort: Due date ↑</option>
-          <option value="due_desc">Sort: Due date ↓</option>
-        </select>
-        <button class="sp-btn ghost" onclick="sd_v11ResetContractFilter()"><i class="fas fa-rotate-left"></i> Reset Filter</button>
-      </div>
+      <div class="stockpro-card-head"><h3><i class="fas fa-file-contract text-blue-500"></i> Rental Contract Summary</h3><span id="sdContractCount" class="sp-pill">0 locations</span></div>
       <div id="sdContractTable"></div>
     </div>
 
-    <div class="stockpro-two-col">
-      <div class="stockpro-card">
-        <h3><i class="fas fa-layer-group text-blue-500"></i> Summary by Model / Brand / Status</h3>
-        <div id="sdSummaryTable"></div>
-      </div>
-      <div class="stockpro-card">
-        <h3><i class="fas fa-map-marker-alt text-rose-500"></i> Summary by Location</h3>
-        <div id="sdLocationTable"></div>
-      </div>
-    </div>
-
-    <div class="stockpro-card" style="display:none">
-      <div class="stockpro-card-head">
-        <h3><i class="fas fa-bell text-amber-500"></i> Alert List</h3>
-        <span id="sdAlertCount" class="sp-pill">0 alerts</span>
-      </div>
-      <div id="sdAlertTable"></div>
-    </div>
-
+    <div id="sdSummaryTable" class="hidden"></div>
+    <div id="sdLocationTable" class="hidden"></div>
+    <div id="sdAlertTable" class="hidden"></div>
+    <span id="sdAlertCount" class="hidden">0</span>
   </div>
 </section>
