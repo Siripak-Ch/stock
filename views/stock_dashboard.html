@@ -1,15 +1,16 @@
-<!-- CES Hub Stock Inventory — Fast Cache V6 Dashboard -->
-<section id="view-stock_dashboard" class="hidden stockpro-page ces-stock-v5-page">
+<!-- CES Hub Stock Inventory — Contract & UX V7 Dashboard -->
+<section id="view-stock_dashboard" class="hidden stockpro-page ces-stock-v5-page ces-stock-v7-page">
   <div class="stockpro-shell">
     <div class="stockpro-header-card">
       <div class="stockpro-title-wrap">
         <div class="stockpro-icon blue"><i class="fas fa-chart-pie"></i></div>
         <div><h1>Infusion Pump Dashboard</h1><p>Stock Performance Tracking</p></div>
       </div>
-      <div class="stockpro-actions"><span id="sdDataFreshness" class="csv6-freshness stale"><i class="fas fa-database"></i> Preloaded data</span>
+      <div class="stockpro-actions">
+        <span id="sdDataFreshness" class="csv6-freshness stale"><i class="fas fa-database"></i> Preloaded data</span>
         <button class="sp-btn ghost csv5-icon-btn" onclick="initStockDashboardModule(true)" title="Refresh"><i class="fas fa-sync-alt"></i></button>
-        <button class="sp-btn warn csv5-icon-btn" onclick="sd_openAlertPopup()" title="Alerts"><i class="fas fa-bell"></i><span id="sdAlertHeaderCount" class="sp-mini-badge">0</span></button>
-        <button class="sp-btn dark csv5-icon-btn" onclick="sd_exportSummary()" title="Export CSV"><i class="fas fa-file-csv"></i></button>
+        <button class="sp-btn warn csv5-icon-btn" onclick="sd_openAlertPopup()" title="Rental Alerts"><i class="fas fa-bell"></i><span id="sdAlertHeaderCount" class="sp-mini-badge">0</span></button>
+        <button class="sp-btn dark csv5-icon-btn" onclick="sd_exportSummary()" title="Export Dashboard CSV"><i class="fas fa-file-csv"></i></button>
         <button class="sp-btn ghost csv5-icon-btn" onclick="sd_printDashboard()" title="Print / PDF"><i class="fas fa-print"></i></button>
       </div>
     </div>
@@ -24,7 +25,8 @@
       <select id="sdLocation" onchange="sd_renderFiltered()"><option value="all">ทุกสถานที่</option></select>
     </div>
 
-    <div id="sdKpiGrid" class="stockpro-kpi-grid csv5-kpi-six"></div>
+    <!-- Operational KPIs only. Broken / Missing are shown in Inventory. -->
+    <div id="sdKpiGrid" class="stockpro-kpi-grid csv7-kpi-four"></div>
 
     <div class="stockpro-two-col">
       <div class="stockpro-card">
@@ -43,18 +45,48 @@
         <div class="stockpro-chart-box"><canvas id="sdBrandChart"></canvas></div>
       </div>
       <div class="stockpro-card">
-        <div class="stockpro-card-head"><h3><i class="fas fa-location-dot text-rose-500"></i> Top Location</h3><span id="sdLocationCount" class="sp-pill">0 locations</span></div>
+        <div class="stockpro-card-head"><h3><i class="fas fa-location-dot text-blue-500"></i> Top Location</h3><span id="sdLocationCount" class="sp-pill">0 locations</span></div>
         <div id="sdTopLocationTable"></div>
       </div>
     </div>
 
-    <div class="stockpro-card">
-      <div class="stockpro-card-head"><h3><i class="fas fa-file-contract text-blue-500"></i> Rental Contract Summary</h3><span id="sdContractCount" class="sp-pill">0 locations</span></div>
+    <div class="stockpro-card csv7-contract-card">
+      <div class="stockpro-card-head csv7-contract-head">
+        <div>
+          <h3><i class="fas fa-file-contract text-blue-500"></i> รายการสัญญา / Rental Contract Summary</h3>
+          <span id="sdContractCount" class="sp-pill">0 locations</span>
+        </div>
+        <button class="sp-btn soft" onclick="sd_exportContracts()"><i class="fas fa-file-excel"></i> Export Contract</button>
+      </div>
+      <div class="stockpro-filter-card csv7-contract-filters">
+        <div class="sp-search"><i class="fas fa-search"></i><input id="sdContractSearch" oninput="sd_renderContractSummary()" placeholder="ค้นหา Location / ID / SN / Model / Borrower"></div>
+        <select id="sdContractFilter" onchange="sd_renderContractSummary()">
+          <option value="all">ทุกสัญญา</option>
+          <option value="active">กำลังใช้งาน</option>
+          <option value="overdue">เกินกำหนด</option>
+        </select>
+        <select id="sdContractSort" onchange="sd_renderContractSummary()">
+          <option value="risk">Sort: Risk first</option>
+          <option value="location">Sort: Location A-Z</option>
+          <option value="due_asc">Sort: Due date ↑</option>
+          <option value="due_desc">Sort: Due date ↓</option>
+        </select>
+        <button class="sp-btn ghost" onclick="sd_resetContractFilter()"><i class="fas fa-rotate-left"></i> Reset Filter</button>
+      </div>
       <div id="sdContractTable"></div>
     </div>
 
-    <div id="sdSummaryTable" class="hidden"></div>
-    <div id="sdLocationTable" class="hidden"></div>
+    <div class="stockpro-two-col csv7-summary-grid">
+      <div class="stockpro-card">
+        <h3><i class="fas fa-layer-group text-blue-500"></i> Summary by Model / Brand / Status</h3>
+        <div id="sdSummaryTable"></div>
+      </div>
+      <div class="stockpro-card">
+        <h3><i class="fas fa-location-dot text-emerald-500"></i> Summary by Location</h3>
+        <div id="sdLocationTable"></div>
+      </div>
+    </div>
+
     <div id="sdAlertTable" class="hidden"></div>
     <span id="sdAlertCount" class="hidden">0</span>
   </div>

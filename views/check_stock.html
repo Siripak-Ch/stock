@@ -1,24 +1,30 @@
-<!-- CES Hub Stock Inventory — Fast Cache V6 Check Stock -->
-<section id="view-check_stock" class="hidden stockpro-page ces-stock-v5-page">
+<!-- CES Hub Stock Inventory — Confirm Workflow V7 Check Stock -->
+<section id="view-check_stock" class="hidden stockpro-page ces-stock-v5-page ces-stock-v7-page">
   <div class="stockpro-shell">
     <div class="stockpro-header-card">
-      <div class="stockpro-title-wrap"><div class="stockpro-icon orange"><i class="fas fa-qrcode"></i></div><div><h1>Check Stock</h1><p>ID/SN Lookup + Scan CAL/PM + Check-Out + Activity Log</p></div></div>
+      <div class="stockpro-title-wrap"><div class="stockpro-icon blue"><i class="fas fa-qrcode"></i></div><div><h1>Check Stock</h1><p>ID/SN Lookup + Scan CAL/PM + Check-Out + Activity Log</p></div></div>
       <div class="stockpro-actions"><button class="sp-btn ghost" onclick="initStockCheckModule(true)"><i class="fas fa-sync-alt"></i> Refresh Log</button></div>
     </div>
 
-    <div id="scWarning" class="stockpro-card hidden" style="border-color:#fecaca;background:#fff1f2;color:#991b1b;margin-bottom:16px;"><div class="stockpro-card-head"><h3><i class="fas fa-triangle-exclamation"></i> พบรายการไม่ตรงฐานข้อมูล</h3><button class="sp-btn danger" onclick="sc_hideWarning()">ปิด</button></div></div>
+    <div id="scWarning" class="stockpro-card hidden" style="border-color:#cbd5e1;background:#f8fafc;color:#334155;margin-bottom:16px;"><div class="stockpro-card-head"><h3><i class="fas fa-triangle-exclamation"></i> พบรายการไม่ตรงฐานข้อมูล</h3><button class="sp-btn ghost" onclick="sc_hideWarning()">ปิด</button></div></div>
 
-    <div class="stockpro-hero">
-      <p class="sp-muted" style="text-align:center;font-weight:900;margin-bottom:10px;">เลือกโหมดการทำงาน</p>
-      <div class="sp-mode-grid csv6-three-mode">
-        <div id="scModeIn" class="sp-mode active in" onclick="sc_setMode('CHECK-IN')"><i class="fas fa-sign-in-alt"></i><br>Return / Check-In<br><span class="sp-sub">เช่ายืม → รอสอบเทียบ</span></div>
-        <div id="scModeCal" class="sp-mode" onclick="sc_setMode('CAL/PM')"><i class="fas fa-screwdriver-wrench"></i><br>Scan CAL/PM<br><span class="sp-sub">รอสอบเทียบ → พร้อมส่ง</span></div>
-        <div id="scModeOut" class="sp-mode" onclick="sc_setMode('CHECK-OUT')"><i class="fas fa-sign-out-alt"></i><br>Check-Out<br><span class="sp-sub">พร้อมส่ง → เช่ายืม</span></div>
+    <div class="stockpro-hero csv7-mode-panel">
+      <p class="sp-muted csv7-mode-title">เลือกโหมดการทำงาน</p>
+      <div class="sp-mode-grid csv7-three-mode">
+        <button id="scModeIn" type="button" class="sp-mode csv7-mode-return active in" onclick="sc_requestMode('CHECK-IN')">
+          <span class="csv7-mode-icon"><i class="fas fa-sign-in-alt"></i></span><strong>Return / Check-In</strong><span>เช่ายืม → รอสอบเทียบ</span>
+        </button>
+        <button id="scModeCal" type="button" class="sp-mode csv7-mode-cal" onclick="sc_requestMode('CAL/PM')">
+          <span class="csv7-mode-icon"><i class="fas fa-screwdriver-wrench"></i></span><strong>Scan CAL/PM</strong><span>รอสอบเทียบ → พร้อมส่ง</span>
+        </button>
+        <button id="scModeOut" type="button" class="sp-mode csv7-mode-out" onclick="sc_requestMode('CHECK-OUT')">
+          <span class="csv7-mode-icon"><i class="fas fa-sign-out-alt"></i></span><strong>Check-Out</strong><span>พร้อมส่ง → เช่ายืม</span>
+        </button>
       </div>
-      <div id="scModeText" class="sp-muted" style="text-align:center;margin-top:8px;color:#059669;font-weight:900">● โหมด: รับคืนอุปกรณ์</div>
+      <div id="scModeText" class="sp-muted csv7-mode-text">● โหมด: Return / รับคืนอุปกรณ์</div>
     </div>
 
-    <div class="stockpro-card"><div class="sp-scan-box"><h3 style="justify-content:center"><i class="fas fa-robot text-indigo-500"></i> ค้นหาอุปกรณ์</h3><div class="sp-muted">ถ่ายรูปป้าย CESR / SN หรือพิมพ์รหัสเอง</div>
+    <div class="stockpro-card"><div class="sp-scan-box"><h3 style="justify-content:center"><i class="fas fa-barcode text-blue-500"></i> ค้นหาอุปกรณ์</h3><div class="sp-muted">ถ่ายรูปป้าย CESR / SN หรือพิมพ์รหัสเอง</div>
       <input id="scImageInput" type="file" accept="image/*" class="hidden" onchange="sc_ocrImage(this)"><button class="sp-big-btn" onclick="document.getElementById('scImageInput').click()"><i class="fas fa-camera"></i> ถ่ายรูป / อัปโหลดป้าย</button>
       <div style="display:flex;align-items:center;gap:12px;margin:14px 0;color:#94a3b8;font-size:12px;"><div style="height:1px;background:#e2e8f0;flex:1"></div>หรือพิมพ์รหัส<div style="height:1px;background:#e2e8f0;flex:1"></div></div>
       <div class="sp-scan-input-row"><input id="scKeyword" class="stockpro-control" placeholder="ID Code หรือ Serial Number" onkeydown="if(event.key==='Enter')sc_lookup()"><button class="sp-btn primary" onclick="sc_lookup()"><i class="fas fa-search"></i></button></div>

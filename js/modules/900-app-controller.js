@@ -214,7 +214,7 @@
             ot: 'OT Dashboard', weekly: 'Weekly Report',
             report_manage: 'Report Management',
             kpi: 'KPI Tracking',
-            stock_dashboard: 'Stock Dashboard',
+            stock_dashboard: 'Infusion Pump Dashboard',
             inventory: 'Inventory',
             check_stock: 'Check Stock'
         };
