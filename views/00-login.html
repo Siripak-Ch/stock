@@ -1,0 +1,116 @@
+<!-- Login / Register UI -->
+<div class="fixed inset-0 bg-slate-50 z-[200] flex flex-col items-center justify-center p-4 transition-all duration-500" id="login-container">
+<div class="absolute inset-0 overflow-hidden pointer-events-none">
+<div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-indigo-200/20 rounded-full blur-3xl animate-pulse"></div>
+<div class="absolute top-[20%] -right-[10%] w-[40%] h-[40%] bg-blue-200/20 rounded-full blur-3xl animate-pulse delay-700"></div>
+</div>
+<div class="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] border border-white w-full max-w-md relative overflow-hidden">
+<div class="text-center mb-8 relative z-10">
+<img src="img/ces-logo.jpg" alt="CES Hub" class="w-20 h-20 mx-auto mb-4 rounded-2xl shadow-lg transform hover:scale-105 transition-transform duration-300 object-cover">
+<h1 class="text-3xl font-black text-gray-900 tracking-tight leading-none mb-2">CES Hub</h1>
+<p class="text-sm font-bold text-gray-400 uppercase tracking-widest">Engineering Service System</p>
+</div>
+<!-- LINE linking notice — shown only when pendingLineProfile is set -->
+<div class="hidden mb-4 bg-[#003DA5] border border-[#003DA5] rounded-2xl px-4 py-3 flex items-center gap-3 relative z-10" id="line-link-notice">
+<i class="fab fa-line text-[#003DA5] text-xl"></i>
+<div>
+<p class="text-xs font-bold text-[#003DA5]">Signing in via LINE</p>
+<p class="text-[11px] text-[#003DA5]" id="line-link-name">Enter your Employee ID to link your account</p>
+</div>
+</div>
+<div class="space-y-5 relative z-10">
+<div>
+<label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">Employee ID</label>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
+<i class="fas fa-id-badge"></i>
+</div>
+<input class="w-full bg-white border border-gray-200 rounded-2xl pl-11 pr-4 py-3.5 text-gray-800 font-medium focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all shadow-sm" id="loginId" placeholder="Enter your 6-digit ID" type="text"/>
+</div>
+</div>
+<button class="w-full bg-gray-900 hover:bg-[#003DA5] text-white font-bold py-3.5 rounded-2xl shadow-xl shadow-gray-200 hover:shadow-indigo-200 transition-all duration-300 flex items-center justify-center relative overflow-hidden group" id="btnLogin" onclick="checkLogin()">
+<span class="relative z-10 flex items-center">Login / Check ID <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i></span>
+</button>
+</div>
+<div class="mt-8 text-center relative z-10">
+<p class="text-xs text-gray-500 mb-2">Don't have an account?</p>
+<button class="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors" onclick="openRegisterModal()">Request Access Now</button>
+<div class="mt-6 flex items-center justify-center gap-2 opacity-60"><img src="img/nhealth-logo.png" alt="N Health" class="h-5"></div>
+</div>
+</div>
+</div>
+<!-- Register Modal -->
+<div class="fixed inset-0 bg-slate-900/60 z-[250] hidden flex items-center justify-center backdrop-blur-sm p-4 animate-fade-in" id="registerModal">
+<div class="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl overflow-hidden transform scale-100 transition-all flex flex-col max-h-[90vh]">
+<div class="bg-gradient-to-r from-[#003DA5] to-[#004aad] px-8 py-6 relative overflow-hidden shrink-0">
+<div class="absolute -right-10 -top-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+<h3 class="text-2xl font-black text-white relative z-10 flex items-center gap-3"><i class="fas fa-user-plus"></i> Request Access</h3>
+<p class="text-blue-100 text-sm mt-1 relative z-10 font-medium">Register for new CES Hub account</p>
+<button class="absolute top-6 right-6 text-white/70 hover:text-white transition-colors z-20" onclick="closeRegisterModal()"><i class="fas fa-times text-xl"></i></button>
+</div>
+<div class="p-8 space-y-5 overflow-y-auto custom-scrollbar bg-gray-50/50">
+<h4 class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-1 border-b border-gray-200 pb-1">Required Information</h4>
+<div class="space-y-4">
+<div>
+<label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Employee ID <span class="text-red-500">*</span></label>
+<input class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-bold text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm" id="reg-id" placeholder="e.g. 660123" type="text"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Thai Name <span class="text-red-500">*</span></label>
+<input class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm" id="reg-name-th" placeholder="ชื่อ-นามสกุล" type="text"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">English Name <span class="text-red-500">*</span></label>
+<input class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm" id="reg-name-eng" placeholder="Full Name (EN)" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="md:col-span-2">
+<label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Email <span class="text-red-500">*</span></label>
+<input class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm" id="reg-email" placeholder="email@n-health.co.th" type="email"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Team <span class="text-red-500">*</span></label>
+<select class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm" id="reg-team">
+<option value="MED">MED</option>
+<option value="LAB">LAB</option>
+<option value="EHS">EHS</option>
+<option value="IT">IT</option>
+<option value="OTHER">OTHER</option>
+</select>
+</div>
+<div>
+<label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Position <span class="text-red-500">*</span></label>
+<input class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm" id="reg-position" placeholder="e.g. Engineer" type="text"/>
+</div>
+</div>
+</div>
+<div class="mt-6">
+<h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 border-b border-gray-200 pb-1">Additional Information (Optional)</h4>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Cost Center</label>
+<input class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm" id="reg-costCenter" placeholder="e.g. 6206" type="text"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Supervisor Name</label>
+<input class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm" id="reg-supervisor" placeholder="Manager's Name" type="text"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Employee Type</label>
+<input class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm" id="reg-empType" placeholder="e.g. Full-Time, Contract" type="text"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Tel (Contact)</label>
+<input class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm" id="reg-tel" placeholder="Phone Number" type="tel"/>
+</div>
+</div>
+</div>
+</div>
+<div class="p-6 bg-white border-t border-gray-100 flex gap-3 shrink-0">
+<button class="flex-1 px-4 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition-all text-sm" onclick="closeRegisterModal()">Cancel</button>
+<button class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-md shadow-blue-200 transition-all text-sm flex items-center justify-center gap-2" onclick="registerUser()"><i class="fas fa-paper-plane"></i> Submit Request</button>
+</div>
+</div>
+</div>

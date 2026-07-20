@@ -1,0 +1,236 @@
+<div class="hidden animate-fade-in space-y-6 pb-20" id="view-revenue">
+<div class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-3xl shadow-sm border border-gray-100 gap-4">
+<div class="flex items-center gap-4 w-full md:w-auto overflow-hidden">
+<div class="p-3 bg-[#003DA5]/10 rounded-xl text-[#003DA5] shadow-lg shrink-0">
+<i class="fas fa-chart-pie text-2xl"></i>
+</div>
+<div class="min-w-0">
+<h2 class="text-xl font-extrabold text-gray-800 tracking-tight truncate">Revenue Dashboard</h2>
+<p class="text-sm text-gray-400 font-medium truncate">Financial Performance Tracking</p>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0 w-full md:w-auto justify-end">
+<button class="flex items-center gap-2 px-4 py-2 bg-[#003DA5] text-white rounded-xl hover:bg-[#003DA5] transition-all shadow-md active:scale-95" onclick="openBulkEditModal()">
+<i class="fas fa-edit"></i> <span class="text-sm font-bold">Edit All</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-colors shadow-sm ring-1 ring-indigo-100 shrink-0" onclick="forceReloadRevenue()">
+<i class="fas fa-sync-alt"></i>
+</button>
+<div class="relative">
+<select class="appearance-none bg-white border border-gray-200 text-gray-700 font-bold text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-4 pr-8 py-2.5 shadow-sm cursor-pointer hover:border-gray-300 transition-colors" id="rev-filter-year" onchange="fetchRevenueDataBackground()">
+<option selected="" value="2026">2026</option>
+<option value="2025">2025</option>
+</select>
+<div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+<i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="r-card-static theme-total">
+<div class="r-head">
+<span class="r-label" title="Total Revenue">Total Revenue</span>
+<span class="r-pct-badge" id="rev-total-pct-badge">0%</span>
+</div>
+<div class="r-body">
+<span class="r-value" id="rev-total-act" title="0.00">0.00</span>
+<div class="r-prog-track"><div class="r-prog-fill" id="rev-total-prog" style="width: 0%"></div></div>
+</div>
+<div class="r-footer">
+<span class="truncate">Total Target</span>
+<span class="font-bold truncate" id="rev-total-tgt">0.00</span>
+</div>
+</div>
+<div class="r-card theme-med">
+<div class="r-head">
+<span class="r-label" title="MED Team">MED Team</span>
+<span class="r-pct-badge" id="rev-med-pct">0%</span>
+</div>
+<div class="r-body">
+<span class="r-value" id="rev-med-act" title="0.00">0.00</span>
+<div class="r-prog-track"><div class="r-prog-fill" id="rev-med-prog" style="width: 0%"></div></div>
+</div>
+<div class="r-footer">
+<span class="truncate">Target</span>
+<span class="font-bold text-gray-700 truncate" id="rev-med-tgt">0.00</span>
+</div>
+</div>
+<div class="r-card theme-lab">
+<div class="r-head">
+<span class="r-label" title="LAB Team">LAB Team</span>
+<span class="r-pct-badge" id="rev-lab-pct">0%</span>
+</div>
+<div class="r-body">
+<span class="r-value" id="rev-lab-act" title="0.00">0.00</span>
+<div class="r-prog-track"><div class="r-prog-fill" id="rev-lab-prog" style="width: 0%"></div></div>
+</div>
+<div class="r-footer">
+<span class="truncate">Target</span>
+<span class="font-bold text-gray-700 truncate" id="rev-lab-tgt">0.00</span>
+</div>
+</div>
+<div class="r-card theme-ehs">
+<div class="r-head">
+<span class="r-label" title="EHS Team">EHS Team</span>
+<span class="r-pct-badge" id="rev-ehs-pct">0%</span>
+</div>
+<div class="r-body">
+<span class="r-value" id="rev-ehs-act" title="0.00">0.00</span>
+<div class="r-prog-track"><div class="r-prog-fill" id="rev-ehs-prog" style="width: 0%"></div></div>
+</div>
+<div class="r-footer">
+<span class="truncate">Target</span>
+<span class="font-bold text-gray-700 truncate" id="rev-ehs-tgt">0.00</span>
+</div>
+</div>
+</div>
+<div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+<div class="flex justify-between items-center mb-6 overflow-hidden">
+<h3 class="font-bold text-gray-800 flex items-center gap-2 truncate">
+<i class="fas fa-chart-bar text-indigo-500 shrink-0"></i>
+<span class="truncate">Yearly Trend Analysis</span>
+</h3>
+<div class="flex gap-4 text-[10px] font-bold text-gray-400 uppercase shrink-0">
+<div class="flex items-center gap-1"><span class="w-3 h-3 bg-[#e2e8f0] rounded-sm"></span> Target</div>
+<div class="flex items-center gap-1"><span class="w-3 h-3 bg-[#004aad] rounded-sm"></span> Actual</div>
+</div>
+</div>
+<div class="h-[300px] w-full relative">
+<canvas id="revenueTrendChart"></canvas>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-auto">
+<div class="p-4 border-b border-gray-100 bg-[#004aad]/5 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-[#004aad] text-white flex items-center justify-center shadow-md shrink-0"><span class="font-bold text-xs">M</span></div>
+<div class="min-w-0">
+<h3 class="font-bold text-[#004aad] text-sm truncate">MED Breakdown</h3>
+<p class="text-[10px] text-gray-400 truncate">Medical Equipment</p>
+</div>
+</div>
+<button class="p-2 text-[#004aad] hover:bg-[#004aad]/10 rounded-lg transition-colors" onclick="openRevenueEditModal('med')"><i class="fas fa-edit"></i></button>
+</div>
+<div class="p-2 overflow-x-auto">
+<table class="w-full text-left border-collapse min-w-[250px]">
+<thead>
+<tr>
+<th class="p-3 text-[10px] font-bold text-gray-400 uppercase">Month</th>
+<th class="p-3 text-[10px] font-bold text-gray-400 uppercase text-right">Actual</th>
+<th class="p-3 text-[10px] font-bold text-gray-400 uppercase text-right">%</th>
+</tr>
+</thead>
+<tbody class="text-xs text-gray-600 divide-y divide-gray-50" id="table-med"></tbody>
+</table>
+</div>
+</div>
+<div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-auto">
+<div class="p-4 border-b border-gray-100 bg-[#19a7ce]/5 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-[#19a7ce] text-white flex items-center justify-center shadow-md shrink-0"><span class="font-bold text-xs">L</span></div>
+<div class="min-w-0">
+<h3 class="font-bold text-[#19a7ce] text-sm truncate">LAB Breakdown</h3>
+<p class="text-[10px] text-gray-400 truncate">Laboratory & Testing</p>
+</div>
+</div>
+<button class="p-2 text-[#19a7ce] hover:bg-[#19a7ce]/10 rounded-lg transition-colors" onclick="openRevenueEditModal('lab')"><i class="fas fa-edit"></i></button>
+</div>
+<div class="p-2 overflow-x-auto">
+<table class="w-full text-left border-collapse min-w-[250px]">
+<thead>
+<tr>
+<th class="p-3 text-[10px] font-bold text-gray-400 uppercase">Month</th>
+<th class="p-3 text-[10px] font-bold text-gray-400 uppercase text-right">Actual</th>
+<th class="p-3 text-[10px] font-bold text-gray-400 uppercase text-right">%</th>
+</tr>
+</thead>
+<tbody class="text-xs text-gray-600 divide-y divide-gray-50" id="table-lab"></tbody>
+</table>
+</div>
+</div>
+<div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-auto">
+<div class="p-4 border-b border-gray-100 bg-[#0fc1a1]/5 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-[#0fc1a1] text-white flex items-center justify-center shadow-md shrink-0"><span class="font-bold text-xs">E</span></div>
+<div class="min-w-0">
+<h3 class="font-bold text-[#0fc1a1] text-sm truncate">EHS Breakdown</h3>
+<p class="text-[10px] text-gray-400 truncate">Environmental Health</p>
+</div>
+</div>
+<button class="p-2 text-[#0fc1a1] hover:bg-[#0fc1a1]/10 rounded-lg transition-colors" onclick="openRevenueEditModal('ehs')"><i class="fas fa-edit"></i></button>
+</div>
+<div class="p-2 overflow-x-auto">
+<table class="w-full text-left border-collapse min-w-[250px]">
+<thead>
+<tr>
+<th class="p-3 text-[10px] font-bold text-gray-400 uppercase">Month</th>
+<th class="p-3 text-[10px] font-bold text-gray-400 uppercase text-right">Actual</th>
+<th class="p-3 text-[10px] font-bold text-gray-400 uppercase text-right">%</th>
+</tr>
+</thead>
+<tbody class="text-xs text-gray-600 divide-y divide-gray-50" id="table-ehs"></tbody>
+</table>
+</div>
+</div>
+</div>
+</div><div class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" id="modal-edit-revenue">
+<div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in duration-200">
+<div class="p-6 text-white flex justify-between items-center" id="modal-rev-header">
+<h3 class="font-bold text-lg flex items-center gap-2"><i class="fas fa-edit"></i> Edit Revenue Data</h3>
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/10 transition-colors" onclick="closeRevenueEditModal()"><i class="fas fa-times"></i></button>
+</div>
+<div class="p-6 space-y-5">
+<div>
+<label class="block text-xs font-bold text-gray-400 uppercase mb-2">Select Month</label>
+<select class="w-full bg-gray-50 border-gray-200 rounded-xl font-bold text-gray-700 focus:ring-2 focus:ring-indigo-500 transition-all" id="edit-rev-month"></select>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-xs font-bold text-gray-400 uppercase mb-2">Target Amount</label>
+<input class="w-full bg-gray-50 border-gray-200 rounded-xl font-bold p-3 focus:ring-2 focus:ring-indigo-500" id="edit-rev-target" onblur="handleInputComma(this)" placeholder="0.00" type="text"/>
+</div>
+<div>
+<label class="block text-xs font-bold text-gray-400 uppercase mb-2">Actual Amount</label>
+<input class="w-full bg-gray-50 border-gray-200 rounded-xl font-bold p-3 focus:ring-2 focus:ring-indigo-500" id="edit-rev-actual" onblur="handleInputComma(this)" placeholder="0.00" type="text"/>
+</div>
+</div>
+<div class="pt-2">
+<button class="w-full py-4 bg-gray-900 text-white rounded-2xl font-bold hover:bg-black transition-all shadow-xl active:scale-[0.98]" id="btn-save-revenue" onclick="submitRevenueEdit()">Save Changes</button>
+</div>
+</div>
+</div>
+</div><div class="fixed inset-0 z-[60] hidden bg-black/60 backdrop-blur-md flex items-center justify-center p-4" id="modal-bulk-edit">
+<div class="bg-white rounded-[2.5rem] w-full max-w-6xl max-h-[92vh] overflow-hidden shadow-2xl flex flex-col animate-in zoom-in duration-300">
+<div class="p-8 bg-[#003DA5] text-white flex justify-between items-center shrink-0">
+<div>
+<h3 class="font-extrabold text-2xl flex items-center gap-3"><i class="fas fa-table"></i> Edit Annual Revenue</h3>
+<p class="text-indigo-100 text-sm mt-1 opacity-80">แก้ไข Target และ Actual ทุกเดือนในหน้าเดียว (ใส่คอมม่าให้อัตโนมัติ)</p>
+</div>
+<button class="w-12 h-12 flex items-center justify-center rounded-2xl hover:bg-white/20 transition-all active:scale-90" onclick="closeBulkEditModal()"><i class="fas fa-times text-xl"></i></button>
+</div>
+<div class="p-6 overflow-y-auto bg-gray-50/50">
+<div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+<table class="w-full text-sm border-collapse">
+<thead class="bg-gray-50/80 sticky top-0 z-10">
+<tr class="text-gray-500 font-bold border-b border-gray-100">
+<th class="p-4 text-left w-24">Month</th>
+<th class="p-4 text-right bg-blue-50/50 text-[#004aad]">MED Tgt</th>
+<th class="p-4 text-right bg-blue-50/50 text-[#004aad]">MED Act</th>
+<th class="p-4 text-right bg-cyan-50/50 text-[#19a7ce]">LAB Tgt</th>
+<th class="p-4 text-right bg-cyan-50/50 text-[#19a7ce]">LAB Act</th>
+<th class="p-4 text-right bg-[#003DA5]/50 text-[#0fc1a1]">EHS Tgt</th>
+<th class="p-4 text-right bg-[#003DA5]/50 text-[#0fc1a1]">EHS Act</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-100" id="bulk-edit-tbody">
+</tbody>
+</table>
+</div>
+</div>
+<div class="p-8 bg-white border-t border-gray-100 flex justify-end gap-4 shrink-0">
+<button class="px-8 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-2xl transition-all" onclick="closeBulkEditModal()">Cancel</button>
+<button class="px-12 py-3 bg-[#003DA5] text-white font-extrabold rounded-2xl hover:bg-[#003DA5] shadow-xl shadow-indigo-100 transition-all active:scale-95" id="btn-save-bulk" onclick="submitBulkEdit()">Save All Data</button>
+</div>
+</div>
+</div>

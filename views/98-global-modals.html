@@ -1,0 +1,104 @@
+<div class="fixed inset-0 bg-slate-900/60 z-[150] hidden flex items-center justify-center backdrop-blur-sm p-4 transition-all" id="profileModal">
+<div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl transform scale-100 transition-all overflow-hidden flex flex-col max-h-[95vh] border border-white/20">
+<div class="bg-gradient-to-r from-[#003DA5] to-[#004aad] px-6 py-5 flex justify-between items-center shrink-0">
+<h3 class="text-lg font-black text-white flex items-center gap-3 tracking-tight">
+<div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md">
+<i class="fas fa-user text-sm"></i>
+</div>
+                My Profile Settings
+            </h3>
+<button class="w-8 h-8 flex items-center justify-center rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-all" onclick="closeProfileModal()">
+<i class="fas fa-times text-lg"></i>
+</button>
+</div>
+<div class="p-6 space-y-6 overflow-y-auto custom-scrollbar bg-white">
+<div class="space-y-4">
+<div class="flex items-center gap-2 mb-3">
+<span class="w-1.5 h-4 bg-[#003DA5] rounded-full"></span>
+<h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">User Profile (Editable)</h4>
+</div>
+<div class="flex flex-col md:flex-row gap-4">
+<div class="flex-1">
+<label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Employee ID</label>
+<input class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-400 cursor-not-allowed text-sm font-medium" disabled="" id="prof-id" type="text"/>
+</div>
+<div class="flex-1">
+<label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">System Role</label>
+<input class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-indigo-500 cursor-not-allowed text-sm font-bold uppercase tracking-wider" disabled="" id="prof-role" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<label class="block text-[10px] font-bold text-slate-700 uppercase mb-1">Name (English)</label>
+<input class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-slate-700 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none" id="prof-name-eng" type="text"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold text-slate-700 uppercase mb-1">Name (Thai)</label>
+<input class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-slate-700 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none" id="prof-name-th" type="text"/>
+</div>
+</div>
+<div>
+<label class="block text-[10px] font-bold text-slate-700 uppercase mb-1">Email Address</label>
+<input class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-slate-700 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none" id="prof-email" type="email"/>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-3 mt-6">
+<span class="w-1.5 h-4 bg-slate-300 rounded-full"></span>
+<h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Company Information (Read-only)</h4>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Team / Department</label>
+<input class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-500 cursor-not-allowed text-xs font-bold" disabled="" id="prof-team" type="text"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Position / Title</label>
+<input class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-500 cursor-not-allowed text-xs font-bold" disabled="" id="prof-position" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Cost Center</label>
+<input class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-500 cursor-not-allowed text-xs font-bold" disabled="" id="prof-costCenter" type="text"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Telephone</label>
+<input class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-500 cursor-not-allowed text-xs font-bold" disabled="" id="prof-tel" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Employee Type</label>
+<input class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-500 cursor-not-allowed text-xs font-bold" disabled="" id="prof-empType" type="text"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Supervisor</label>
+<input class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-500 cursor-not-allowed text-xs font-bold" disabled="" id="prof-supervisor" type="text"/>
+</div>
+</div>
+</div>
+</div>
+<div class="p-5 bg-slate-50 border-t border-slate-100 flex flex-col md:flex-row justify-end gap-3 shrink-0">
+<button class="w-full md:w-auto px-6 py-2.5 bg-white text-slate-600 rounded-xl font-bold border border-slate-200 hover:bg-slate-100 transition-all text-sm shadow-sm" onclick="closeProfileModal()">Cancel</button>
+<button class="w-full md:w-auto px-8 py-2.5 bg-[#003DA5] text-white rounded-xl font-bold hover:bg-[#003DA5] transition-all text-sm shadow-md shadow-[#003DA5]/10 flex justify-center items-center gap-2" onclick="saveProfileChanges()">
+<i class="fas fa-save"></i> Save Changes
+            </button>
+</div>
+</div>
+</div><div class="fixed inset-0 bg-slate-900/60 z-[150] hidden flex items-center justify-center backdrop-blur-sm p-4 transition-all" id="resetModal">
+<div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden text-center transform scale-100 border border-white/20">
+<div class="pt-8 pb-6 px-6">
+<div class="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-5 border-4 border-red-100 shadow-inner">
+<i class="fas fa-exclamation-triangle text-3xl"></i>
+</div>
+<h3 class="text-xl font-black text-gray-800 tracking-tight mb-2">Clear Data?</h3>
+<p class="text-sm text-gray-500 font-medium">Are you sure you want to clear all data in <br/><span class="font-bold text-red-500" id="resetTargetName"></span>?</p>
+<p class="text-xs text-gray-400 mt-2">This action cannot be undone.</p>
+</div>
+<div class="p-4 bg-slate-50 border-t border-slate-100 flex gap-3">
+<button class="flex-1 py-3 bg-white text-slate-600 rounded-xl font-bold border border-slate-200 hover:bg-slate-100 transition-all text-sm shadow-sm" onclick="closeModal('resetModal')">Cancel</button>
+<button class="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 shadow-md shadow-red-200 transition-all text-sm" onclick="confirmReset()">Clear Data</button>
+</div>
+</div>
+</div>

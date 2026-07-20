@@ -1,0 +1,111 @@
+<div class="hidden space-y-6" id="view-calendar">
+<div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
+<div class="flex items-center gap-4">
+<div class="p-3 bg-[#003DA5]/10 rounded-xl text-[#003DA5] shadow-lg">
+<i class="fas fa-calendar-alt text-2xl"></i>
+</div>
+<div>
+<h2 class="text-xl font-extrabold text-gray-800 tracking-tight">Master Calendar</h2>
+<p class="text-sm text-gray-400 font-medium">Job Schedule & Planning</p>
+</div>
+</div>
+<div class="flex gap-2">
+<select class="bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm font-bold focus:ring-2 focus:ring-[#003DA5] cursor-pointer outline-none" id="cal-filter-month" onchange="jumpToDateFromFilter()"></select>
+<select class="bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm font-bold focus:ring-2 focus:ring-[#003DA5] cursor-pointer outline-none" id="cal-filter-year" onchange="jumpToDateFromFilter()"></select>
+<button class="w-10 h-10 flex items-center justify-center bg-blue-50 text-[#003DA5] rounded-xl hover:bg-[#003DA5] hover:text-white transition-all shadow-sm border border-[#003DA5]" onclick="loadAllData()" title="Sync Data">
+<i class="fas fa-sync-alt"></i>
+</button>
+<button class="w-10 h-10 flex items-center justify-center bg-blue-50 text-[#003DA5] rounded-xl hover:bg-[#003DA5] hover:text-white transition-all shadow-sm border border-[#003DA5]" onclick="exportMasterCalendarToCSV()" title="Export Current Month">
+<i class="fas fa-file-excel"></i>
+</button>
+<button class="flex items-center gap-2 bg-gradient-to-r from-[#003DA5] to-[#004aad] text-white px-4 py-2.5 rounded-xl font-bold hover:from-[#003DA5] hover:to-[#004aad] transition-all shadow-md border-0" onclick="openJobTracker2025()">
+<i class="fas fa-tasks"></i> 2025 Plan Tracker
+            </button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+<div class="kpi-card border-l-4 border-indigo-600">
+<div class="kpi-label">Total Job Record</div>
+<div class="flex items-baseline gap-2">
+<h3 class="kpi-value text-indigo-600" id="stat-total">0</h3><span class="text-xs text-gray-400 font-bold">Jobs</span>
+</div>
+</div>
+<div class="kpi-card accent-med">
+<div class="kpi-label">MED Job Record</div>
+<div class="flex items-baseline gap-2">
+<h3 class="kpi-value text-[#004aad]" id="stat-med">0</h3><span class="text-xs text-gray-400 font-bold">Jobs</span>
+</div>
+</div>
+<div class="kpi-card accent-lab">
+<div class="kpi-label">LAB Job Record</div>
+<div class="flex items-baseline gap-2">
+<h3 class="kpi-value text-[#19a7ce]" id="stat-lab">0</h3><span class="text-xs text-gray-400 font-bold">Jobs</span>
+</div>
+</div>
+<div class="kpi-card accent-ehs">
+<div class="kpi-label">EHS Job Record</div>
+<div class="flex items-baseline gap-2">
+<h3 class="kpi-value text-[#0fc1a1]" id="stat-ehs">0</h3><span class="text-xs text-gray-400 font-bold">Jobs</span>
+</div>
+</div>
+</div>
+<div class="bg-indigo-50/50 rounded-2xl p-5 border border-[#003DA5]/20 shadow-sm">
+<div class="flex justify-between items-center mb-4">
+<div class="flex items-center gap-2">
+<div class="p-1.5 bg-indigo-100 rounded text-indigo-600"><i class="fas fa-battery-half"></i></div>
+<p class="text-sm text-indigo-900 font-bold uppercase tracking-wider">Monthly Capacity Utilization</p>
+</div>
+<span class="text-xs font-bold text-indigo-400 bg-white px-3 py-1 rounded-full shadow-sm" id="capacity-days-display">0 Weekdays</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="capacity-dashboard-grid">
+</div>
+</div>
+<div class="bg-white p-4 rounded-2xl shadow-sm border flex flex-col">
+<div class="flex justify-between items-center mb-4 border-b pb-4">
+<h3 class="text-xl font-black text-gray-800 uppercase" id="calendar-dynamic-title">LOADING...</h3>
+<div class="flex gap-2">
+<div class="flex bg-gray-50 p-1 rounded-lg">
+<button class="w-8 h-8 flex items-center justify-center hover:bg-blue-50 hover:text-[#003DA5] text-gray-500 rounded transition-all" onclick="changeCalendarMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+<button class="w-8 h-8 flex items-center justify-center hover:bg-blue-50 hover:text-[#003DA5] text-gray-500 rounded transition-all" onclick="changeCalendarMonth(1)"><i class="fas fa-chevron-right"></i></button>
+</div>
+<div class="flex bg-gray-50 p-1 rounded-lg gap-1">
+<button class="px-3 py-1 text-xs font-bold rounded bg-white shadow-sm transition-all" id="btn-cal-all" onclick="changeService('ALL')">All</button>
+<button class="px-3 py-1 text-xs font-bold rounded hover:bg-blue-50 hover:text-[#003DA5] transition-all text-gray-500" id="btn-cal-med" onclick="changeService('MED')">MED</button>
+<button class="px-3 py-1 text-xs font-bold rounded hover:bg-blue-50 hover:text-[#003DA5] transition-all text-gray-500" id="btn-cal-lab" onclick="changeService('LAB')">LAB</button>
+<button class="px-3 py-1 text-xs font-bold rounded hover:bg-blue-50 hover:text-[#003DA5] transition-all text-gray-500" id="btn-cal-ehs" onclick="changeService('EHS')">EHS</button>
+<button class="px-3 py-1 text-xs font-bold rounded hover:bg-blue-50 hover:text-[#003DA5] transition-all text-gray-500" id="btn-cal-mgt" onclick="changeService('MGT')">MGT</button>
+</div>
+</div>
+</div>
+<div class="rounded-xl overflow-hidden border border-gray-100 shadow-inner bg-gray-50 h-[750px]">
+<iframe frameborder="0" height="100%" id="calendar-iframe" scrolling="no" src="" style="border:0" width="100%"></iframe>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border flex flex-col h-[550px]">
+<h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2 shrink-0">
+<i class="fas fa-list text-blue-600"></i> Job List Details
+            </h3>
+<div class="overflow-y-auto grow custom-scrollbar pr-2 border rounded-xl border-gray-100">
+<table class="w-full text-sm text-left">
+<thead class="bg-gray-50 text-xs uppercase sticky top-0 z-10 shadow-sm">
+<tr>
+<th class="px-4 py-3 bg-gray-50 text-gray-500 font-bold">Date</th>
+<th class="px-4 py-3 bg-gray-50 text-gray-500 font-bold">Team</th>
+<th class="px-4 py-3 bg-gray-50 text-gray-500 font-bold">Activity</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-100" id="table-job-list">
+</tbody>
+</table>
+</div>
+</div>
+<div class="lg:col-span-1 bg-red-50/30 p-6 rounded-2xl shadow-sm border border-red-100 h-[550px] flex flex-col">
+<h3 class="font-bold text-red-700 mb-4 shrink-0"><i class="fas fa-user-injured mr-2"></i> Leave & Off</h3>
+<div class="overflow-y-auto grow custom-scrollbar pr-1">
+<ul class="space-y-3 text-sm text-gray-600" id="list-leave">
+</ul>
+</div>
+</div>
+</div>
+</div>

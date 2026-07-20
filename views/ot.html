@@ -1,0 +1,90 @@
+<div class="hidden space-y-6 animate-fade-in bg-gray-50/50 p-4 md:p-8 rounded-[32px]" id="view-ot">
+<div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 bg-white p-6 rounded-[24px] shadow-sm border border-gray-100">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 bg-[#003DA5]/10 rounded-2xl flex items-center justify-center text-[#003DA5] shadow-lg shadow-[#003DA5]/10">
+<i class="fas fa-clock text-2xl"></i>
+</div>
+<div>
+<h2 class="text-2xl font-black text-gray-800 tracking-tight">OT Dashboard</h2>
+<p class="text-sm text-gray-400 font-medium">Overtime Analysis & Performance Tracking</p>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+<div class="team-pill-container w-full md:w-auto">
+<button class="ot-team-btn active flex-1 md:flex-none" id="ot-btn-ALL" onclick="setOTTeamFilter('ALL')">ALL</button>
+<button class="ot-team-btn flex-1 md:flex-none" id="ot-btn-MED" onclick="setOTTeamFilter('MED')">MED</button>
+<button class="ot-team-btn flex-1 md:flex-none" id="ot-btn-LAB" onclick="setOTTeamFilter('LAB')">LAB</button>
+<button class="ot-team-btn flex-1 md:flex-none" id="ot-btn-EHS" onclick="setOTTeamFilter('EHS')">EHS</button>
+</div>
+<div class="flex items-center gap-2 ml-auto">
+<button class="w-11 h-11 flex items-center justify-center bg-gray-50 text-gray-400 rounded-xl border border-gray-200 hover:bg-[#003DA5] hover:text-white transition-all shadow-sm" onclick="fetchOTData()">
+<i class="fas fa-sync-alt text-lg"></i>
+</button>
+<button class="w-11 h-11 flex items-center justify-center bg-gray-50 text-gray-400 rounded-xl border border-gray-200 hover:bg-[#003DA5] hover:text-white transition-all shadow-sm" onclick="exportOTData()">
+<i class="fas fa-file-download text-lg"></i>
+</button>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="filter-box">
+<label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Fiscal Year</label>
+<select class="filter-select w-full bg-transparent font-bold text-gray-700 outline-none cursor-pointer" id="ot-filter-year" onchange="applyOTFilters()">
+<option value="2025">2025</option>
+<option value="2026">2026</option>
+<option value="2027">2027</option>
+</select>
+</div>
+<div class="filter-box">
+<label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Monthly Period</label>
+<select class="filter-select w-full bg-transparent font-bold text-gray-700 outline-none cursor-pointer" id="ot-filter-month" onchange="applyOTFilters()"></select>
+</div>
+</div>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="ot-card">
+<p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Total OT Hours</p>
+<div class="text-4xl font-black text-[#003DA5] mt-2" id="card-total-ot">0</div>
+</div>
+<div class="ot-card border-l-4 border-l-blue-500">
+<p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">MED Team OT</p>
+<div class="text-4xl font-black text-blue-600 mt-2" id="card-med-ot">0</div>
+</div>
+<div class="ot-card border-l-4 border-l-cyan-500">
+<p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">LAB Team OT</p>
+<div class="text-4xl font-black text-cyan-500 mt-2" id="card-lab-ot">0</div>
+</div>
+<div class="ot-card border-l-4 border-l-emerald-500">
+<p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">EHS Team OT</p>
+<div class="text-4xl font-black text-[#003DA5] mt-2" id="card-ehs-ot">0</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="lg:col-span-2 ot-card">
+<h3 class="text-sm font-bold text-gray-700 uppercase tracking-widest mb-6">OT Monthly Trend (Hrs)</h3>
+<div class="w-full h-[300px]" id="ot-trend-chart"></div>
+</div>
+<div class="ot-card">
+<h3 class="text-sm font-bold text-gray-700 uppercase tracking-widest mb-6">Service Share (%)</h3>
+<div class="w-full h-[300px]" id="ot-team-chart"></div>
+</div>
+</div>
+<div class="bg-white rounded-[24px] shadow-sm border border-gray-100 overflow-hidden">
+<div class="p-6 border-b border-gray-50">
+<h3 class="text-sm font-bold text-gray-700 uppercase tracking-widest">Staff Performance Summary</h3>
+</div>
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-sm text-left">
+<thead class="bg-gray-50/50">
+<tr class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+<th class="px-8 py-4">Staff Name</th>
+<th class="px-4 py-4 text-center">Team</th>
+<th class="px-4 py-4 text-center">Working (Hrs)</th>
+<th class="px-8 py-4 text-center">Total OT (Hrs)</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-50" id="ot-table-body">
+</tbody>
+</table>
+</div>
+</div>
+</div>

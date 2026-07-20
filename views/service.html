@@ -1,0 +1,267 @@
+<div class="space-y-6 fade-in hidden pb-20" id="view-service">
+<div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
+<div class="flex items-center gap-4 w-full md:w-auto overflow-hidden">
+<div class="p-3 bg-[#003DA5]/10 rounded-xl text-[#003DA5] shadow-lg shadow-blue-200 shrink-0">
+<i class="fas fa-wrench text-2xl"></i>
+</div>
+<div class="min-w-0">
+<h2 class="text-xl font-extrabold text-gray-800 tracking-tight truncate">Service CSI</h2>
+<p class="text-sm text-gray-400 font-medium truncate">Customer Satisfaction & Maintenance</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 items-center justify-end w-full md:w-auto shrink-0">
+<div class="bg-blue-50/50 p-1 rounded-xl flex border border-blue-100 shadow-inner">
+<button class="px-4 py-2 rounded-lg text-xs font-bold text-blue-600 bg-transparent hover:bg-blue-600 hover:text-white transition-all" id="btn-team-All" onclick="setSFilter('team','All')">All</button>
+<button class="px-4 py-2 rounded-lg text-xs font-bold text-blue-600 bg-transparent hover:bg-blue-600 hover:text-white transition-all" id="btn-team-Med" onclick="setSFilter('team','MED')">MED</button>
+<button class="px-4 py-2 rounded-lg text-xs font-bold text-blue-600 bg-transparent hover:bg-blue-600 hover:text-white transition-all" id="btn-team-Lab" onclick="setSFilter('team','LAB')">LAB</button>
+<button class="px-4 py-2 rounded-lg text-xs font-bold text-blue-600 bg-transparent hover:bg-blue-600 hover:text-white transition-all" id="btn-team-Env" onclick="setSFilter('team','EHS')">EHS</button>
+<button class="px-4 py-2 rounded-lg text-xs font-bold text-blue-600 bg-transparent hover:bg-blue-600 hover:text-white transition-all" id="btn-team-Tes" onclick="setSFilter('team','TES')">TES</button>
+</div>
+<button class="w-9 h-9 flex items-center justify-center bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm border border-blue-100" onclick="loadServiceCSIOnly(true)" title="Reload Service CSI">
+<i class="fas fa-sync-alt"></i>
+</button>
+<button class="w-9 h-9 flex items-center justify-center bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm border border-blue-100" onclick="exportServiceToExcel()" title="Export to Excel">
+<i class="fas fa-file-excel"></i>
+</button>
+<label class="cursor-pointer w-9 h-9 flex items-center justify-center bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm border border-blue-100" title="Upload Excel">
+<i class="fas fa-upload"></i>
+<input accept=".xlsx" class="hidden" id="serviceFileInput" onchange="handleServiceUpload(event)" type="file"/>
+</label>
+<button class="ml-auto w-9 h-9 flex items-center justify-center bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm border border-red-100" onclick="exportServiceToPDF()" title="Export Page to PDF">
+<i class="fas fa-file-pdf"></i>
+</button>
+</div>
+</div>
+<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 grid grid-cols-2 md:grid-cols-4 gap-3">
+<select class="border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold bg-gray-50 outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer" id="s-filter-year" onchange="setSFilter('year',this.value)"></select>
+<select class="border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold bg-gray-50 outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer" id="s-filter-month" onchange="setSFilter('month',this.value)"></select>
+<select class="border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold bg-gray-50 outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer" id="s-filter-customer" onchange="setSFilter('customer',this.value)">
+<option value="All">All Customers</option><option value="Commercial">Commercial</option><option value="Network">Network</option>
+</select>
+<select class="border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold bg-gray-50 outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer" id="s-filter-status" onchange="setSFilter('status',this.value)">
+<option value="All">All Status</option><option value="Yes">Finished</option><option value="No">Not Finish</option>
+</select>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+<div class="s-kpi-card">
+<div class="s-kpi-top">
+<span class="s-kpi-label">Total Response</span>
+<div class="s-kpi-icon bg-gray-100 text-gray-600"><i class="fas fa-layer-group"></i></div>
+</div>
+<div>
+<div class="s-kpi-value" id="s-total">0</div>
+</div>
+</div>
+<div class="s-kpi-card border-l-4 border-l-emerald-500">
+<div class="s-kpi-top">
+<span class="s-kpi-label text-[#003DA5]">Finished</span>
+<div class="s-kpi-icon bg-[#003DA5]/10 text-[#003DA5]"><i class="fas fa-check-circle"></i></div>
+</div>
+<div>
+<div class="s-kpi-value text-[#003DA5]" id="s-finish">0</div>
+<div class="s-kpi-sub text-[#003DA5]" id="s-finish-pct">0%</div>
+</div>
+</div>
+<div class="s-kpi-card border-l-4 border-l-rose-500">
+<div class="s-kpi-top">
+<span class="s-kpi-label text-[#003DA5]">Not Finish</span>
+<div class="s-kpi-icon bg-blue-50 text-[#003DA5]"><i class="fas fa-clock"></i></div>
+</div>
+<div>
+<div class="s-kpi-value text-[#003DA5]" id="s-notfinish">0</div>
+<div class="s-kpi-sub text-[#003DA5]" id="s-notfinish-pct">0%</div>
+</div>
+</div>
+<div class="s-kpi-card">
+<div class="s-kpi-top">
+<span class="s-kpi-label text-blue-600">Avg Score</span>
+<div class="s-kpi-icon bg-blue-50 text-blue-600"><i class="fas fa-star"></i></div>
+</div>
+<div>
+<div class="s-kpi-value text-blue-600" id="s-avg">0.00</div>
+<div class="s-kpi-sub text-gray-400">Target 4.7</div>
+</div>
+</div>
+<div class="s-kpi-card">
+<div class="s-kpi-top">
+<span class="s-kpi-label text-[#5B7F95]">Satisfaction</span>
+<div class="s-kpi-icon bg-blue-50 text-[#5B7F95]"><i class="fas fa-smile"></i></div>
+</div>
+<div>
+<div class="s-kpi-value text-[#5B7F95]" id="s-pct">0%</div>
+</div>
+</div>
+<div class="s-kpi-card border-l-4 border-l-indigo-500">
+<div class="s-kpi-top">
+<span class="s-kpi-label text-indigo-600">Achieved Target</span>
+<div class="s-kpi-icon bg-indigo-50 text-indigo-600"><i class="fas fa-trophy"></i></div>
+</div>
+<div>
+<div class="s-kpi-value text-indigo-600" id="s-achieved">0%</div>
+<div class="s-kpi-sub text-indigo-400" id="s-target-desc">Target: -</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2 flex flex-col h-80">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-sm font-bold text-gray-600 uppercase flex items-center gap-2">
+<i class="fas fa-chart-bar text-blue-500"></i> Monthly Trend (Response)
+                </h3>
+</div>
+<div class="flex-1 w-full relative min-h-0">
+<canvas id="monthlyChart"></canvas>
+</div>
+</div>
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-80">
+<h3 class="text-sm font-bold text-gray-600 mb-4 uppercase text-center flex items-center justify-center gap-2">
+<i class="fas fa-chart-pie text-[#003DA5]"></i> Service Share (%)
+            </h3>
+<div class="flex-1 flex justify-center items-center relative min-h-0">
+<canvas id="teamPieChart"></canvas>
+</div>
+</div>
+</div>
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-[420px] mb-6">
+<div class="flex justify-between items-center mb-4 pb-4 border-b shrink-0">
+<h3 class="text-xl font-bold text-gray-800"><i class="fas fa-list text-indigo-500 mr-2"></i>Customer List</h3>
+<span class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-xs font-bold" id="customer-count-badge">0 Items</span>
+</div>
+<div class="overflow-y-auto custom-scrollbar flex-1 relative pr-2">
+<table class="w-full text-left border-collapse">
+<thead class="sticky top-0 bg-white z-10 shadow-sm">
+<tr>
+<th class="p-3 text-xs font-bold text-gray-400 uppercase border-b border-gray-100">Team</th>
+<th class="p-3 text-xs font-bold text-gray-400 uppercase border-b border-gray-100">Customer Name</th>
+<th class="p-3 text-xs font-bold text-gray-400 uppercase text-center cursor-pointer hover:text-indigo-500 transition-colors border-b border-gray-100" onclick="sortCustomerList('s1')">
+                            Staff <i class="fas fa-sort ml-1 opacity-50" id="icon-sort-s1"></i>
+</th>
+<th class="p-3 text-xs font-bold text-gray-400 uppercase text-center cursor-pointer hover:text-indigo-500 transition-colors border-b border-gray-100" onclick="sortCustomerList('s2')">
+                            Process <i class="fas fa-sort ml-1 opacity-50" id="icon-sort-s2"></i>
+</th>
+<th class="p-3 text-xs font-bold text-gray-400 uppercase text-center cursor-pointer hover:text-indigo-500 transition-colors border-b border-gray-100" onclick="sortCustomerList('s3')">
+                            Quality <i class="fas fa-sort ml-1 opacity-50" id="icon-sort-s3"></i>
+</th>
+<th class="p-3 text-xs font-bold text-gray-400 uppercase text-center cursor-pointer hover:text-indigo-500 transition-colors border-b border-gray-100" onclick="sortCustomerList('s4')">
+                            Product <i class="fas fa-sort ml-1 opacity-50" id="icon-sort-s4"></i>
+</th>
+<th class="p-3 text-xs font-bold text-gray-400 uppercase text-center cursor-pointer hover:text-indigo-500 transition-colors border-b border-gray-100" onclick="sortCustomerList('s5')">
+                            Overall <i class="fas fa-sort ml-1 opacity-50" id="icon-sort-s5"></i>
+</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-50" id="customer-list-body">
+</tbody>
+</table>
+</div>
+</div>
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 transition-all">
+<div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-6 pb-4 border-b gap-4">
+<h3 class="text-xl font-bold text-gray-800 flex items-center shrink-0">
+<i class="fas fa-chart-line text-blue-500 mr-2"></i>Score Analysis & Growth
+            </h3>
+<div class="flex flex-row items-center gap-3 bg-gray-50 p-2 rounded-xl border border-gray-200 shadow-inner w-full xl:w-auto overflow-x-auto">
+<div class="flex items-center gap-2 bg-white p-1.5 rounded-lg border border-gray-200 shadow-sm whitespace-nowrap shrink-0">
+<span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-1">P1</span>
+<select class="border-none bg-transparent text-xs font-bold text-gray-700 outline-none cursor-pointer focus:ring-0 p-0 m-0" id="compare-p1-year"></select>
+<div class="w-px h-4 bg-gray-200"></div> <select class="border-none bg-transparent text-xs font-bold text-gray-700 outline-none cursor-pointer focus:ring-0 p-0 m-0" id="compare-p1-month"></select>
+</div>
+<span class="text-xs font-black text-gray-300 shrink-0">VS</span>
+<div class="flex items-center gap-2 bg-white p-1.5 rounded-lg border border-gray-200 shadow-sm whitespace-nowrap shrink-0">
+<span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-1">P2</span>
+<select class="border-none bg-transparent text-xs font-bold text-gray-700 outline-none cursor-pointer focus:ring-0 p-0 m-0" id="compare-p2-year"></select>
+<div class="w-px h-4 bg-gray-200"></div> <select class="border-none bg-transparent text-xs font-bold text-gray-700 outline-none cursor-pointer focus:ring-0 p-0 m-0" id="compare-p2-month"></select>
+</div>
+<button class="ml-auto px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-all shadow-md hover:shadow-lg flex items-center gap-1.5 whitespace-nowrap shrink-0" onclick="runCustomCompare()">
+<i class="fas fa-play"></i> Compare
+                </button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<div class="bg-white p-4 rounded-xl border border-gray-100 h-80 relative flex flex-col shadow-sm">
+<h4 class="font-bold text-gray-700 mb-3 pb-2 border-b border-gray-100 text-xs shrink-0 flex items-center gap-2">
+<i class="fas fa-chart-column text-blue-400"></i> Average Score Comparison
+                </h4>
+<div class="flex-1 min-h-0 relative">
+<canvas id="scoreAnalysisChart"></canvas>
+</div>
+</div>
+<div class="bg-white p-4 rounded-xl border border-gray-100 overflow-x-auto flex flex-col shadow-sm">
+<h4 class="font-bold text-gray-700 mb-3 pb-2 border-b border-gray-100 text-xs shrink-0 flex items-center gap-2">
+<i class="fas fa-table text-blue-400"></i> Growth Analysis Table
+                </h4>
+<table class="w-full text-sm text-left text-gray-600 rounded-lg overflow-hidden">
+<thead class="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-200">
+<tr>
+<th class="px-4 py-3 font-bold">Section</th>
+<th class="px-4 py-3 text-right font-bold" id="th-prev-period">Period 1</th>
+<th class="px-4 py-3 text-right font-bold" id="th-curr-period">Period 2</th>
+<th class="px-4 py-3 text-right font-bold">Difference</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-100" id="growth-table-body">
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-2xl shadow-sm border border-blue-100 bg-blue-50/10 p-6">
+<div class="flex justify-between items-center mb-6 border-b border-blue-100 pb-4">
+<h3 class="text-xl font-bold text-blue-800 flex items-center"><i class="fas fa-calendar-alt text-blue-600 mr-2"></i>Yearly Analysis (%)</h3>
+</div>
+<div class="h-64 w-full mb-6 relative"><canvas id="summaryLineChart"></canvas></div>
+<div class="overflow-x-auto rounded-xl border border-blue-100 bg-white shadow-sm custom-scrollbar">
+<table class="w-full text-xs md:text-sm text-left whitespace-nowrap">
+<thead class="bg-blue-600 text-white">
+<tr>
+<th class="p-3">Category</th>
+<th class="p-3 text-center">JAN</th><th class="p-3 text-center">FEB</th><th class="p-3 text-center">MAR</th>
+<th class="p-3 text-center">APR</th><th class="p-3 text-center">MAY</th><th class="p-3 text-center">JUN</th>
+<th class="p-3 text-center">JUL</th><th class="p-3 text-center">AUG</th><th class="p-3 text-center">SEP</th>
+<th class="p-3 text-center">OCT</th><th class="p-3 text-center">NOV</th><th class="p-3 text-center">DEC</th>
+<th class="p-3 text-center bg-blue-800 font-bold">AVG</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-blue-50" id="summaryTableBody"></tbody>
+</table>
+</div>
+</div>
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+<div class="flex justify-between items-center mb-6 pb-4 border-b">
+<h3 class="text-xl font-bold text-gray-800"><i class="fas fa-comments text-[#003DA5] mr-2"></i>Customer Feedback</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100 h-80 flex flex-col">
+<h4 class="font-bold text-[#0046a3] mb-3 pb-2 border-b border-blue-200 text-xs shrink-0">MED</h4>
+<div class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1" id="comm-med"></div>
+</div>
+<div class="bg-cyan-50/50 p-4 rounded-xl border border-cyan-100 h-80 flex flex-col">
+<h4 class="font-bold text-[#006cff] mb-3 pb-2 border-b border-cyan-200 text-xs shrink-0">LAB</h4>
+<div class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1" id="comm-lab"></div>
+</div>
+<div class="bg-[#0fc1a1]/10 p-4 rounded-xl border border-[#0fc1a1]/30 h-80 flex flex-col">
+<h4 class="font-bold text-[#0fc1a1] mb-3 pb-2 border-b border-[#0fc1a1]/30 text-xs shrink-0">EHS</h4>
+<div class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1" id="comm-env"></div>
+</div>
+<div class="bg-[#ffc000]/10 border border-[#ffc000]/30 rounded-2xl p-4 h-80 flex flex-col">
+<h4 class="text-xs font-bold text-[#ffc000] uppercase mb-3 border-b border-[#ffc000]/30 pb-2">TES</h4>
+<div class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1" id="comm-tes"></div>
+</div>
+</div>
+</div>
+</div><style>
+    #view-report { font-family: 'Prompt', sans-serif; }
+    .kpi-static-card { background: white; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px; height: 112px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05); overflow: hidden; transition: transform 0.2s; }
+    .kpi-static-card:hover { transform: translateY(-2px); }
+    .kpi-top-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
+    .kpi-label-text { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; }
+    .kpi-icon-badge { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .kpi-value-text { font-size: 1.8rem; font-weight: 800; line-height: 1.1; color: #1e293b; margin-top: 2px; }
+    .kpi-sub-text { font-size: 10px; font-weight: 600; margin-top: 2px; opacity: 0.9; }
+    .crm-table th { background-color: #f8fafc; color: #64748b; font-weight: 700; font-size: 11px; text-transform: uppercase; padding: 12px; white-space: nowrap; }
+    .crm-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 12px; color: #334155; vertical-align: middle; white-space: nowrap; }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+</style>

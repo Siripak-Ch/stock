@@ -1,0 +1,589 @@
+/* ============================================================
+   CES Hub Global CSS extracted from original index.html
+   Generated modular refactor.
+   ============================================================ */
+
+/* --- Original head style block 1 --- */
+
+    :root {
+        --primary-bg: #f5f6f8;
+        --card-bg: #ffffff;
+        --text-main: #1e293b;
+        --text-muted: #5B7F95;
+        
+        /* Brand Colors - Pantone */
+        --brand-blue: #003DA5;
+        --brand-red: #E4002B;
+        --brand-steel: #5B7F95;
+        --brand-grey: #C8C9C7;
+        
+        /* Team Colors */
+        --med-color: #004aad;
+        --lab-color: #19a7ce;
+        --ehs-color: #0fc1a1;
+        --tes-color: #ffc000;
+        --other-color: #C8C9C7;
+        
+        /* UI Element Colors */
+        --sidebar-bg: #003DA5;
+        --sidebar-active: #002d7a;
+        --header-bg: #ffffff;
+        --header-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        --icon-blue: #003DA5;
+        --icon-green: #059669;
+        --icon-red: #E4002B;
+        --icon-grey: #5B7F95;
+        --btn-excel: #059669;
+        --btn-refresh: #003DA5;
+        --btn-folder: #5B7F95;
+        --btn-alert: #E4002B;
+        --btn-default: #5B7F95;
+        
+        /* Chart Blue Shades */
+        --chart-1: #003DA5;
+        --chart-2: #004aad;
+        --chart-3: #1a6bc4;
+        --chart-4: #3d8be0;
+        --chart-5: #6aabf0;
+        --chart-6: #a3cdf7;
+    }
+
+    body { 
+        font-family: 'Prompt', sans-serif;
+        background-color: var(--primary-bg); 
+        color: var(--text-main);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* --- KPI Box Design System --- */
+    .kpi-card {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .kpi-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        border-color: #e2e8f0;
+    }
+
+    .kpi-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 8px;
+    }
+
+    .kpi-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        transition: all 0.3s ease;
+    }
+
+    .kpi-label {
+        font-size: 0.75rem; /* 12px */
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #C8C9C7;
+        margin-top: 4px;
+    }
+
+    .kpi-value {
+        font-size: 1.875rem; /* 30px */
+        font-weight: 800;
+        line-height: 1;
+        color: #1e293b;
+        letter-spacing: -0.025em;
+    }
+
+    .kpi-subtext {
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: #C8C9C7;
+        margin-top: 4px;
+    }
+
+    /* Progress Bar System */
+    .progress-container {
+        margin-top: 12px;
+        width: 100%;
+    }
+    
+    .progress-rail {
+        width: 100%;
+        height: 6px;
+        background-color: #f1f5f9;
+        border-radius: 9999px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        height: 100%;
+        border-radius: 9999px;
+        transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* --- Utilities --- */
+    .fade-in { animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Scrollbar */
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #C8C9C7; border-radius: 10px; }
+    
+    /* Team Accents (Optional Helper) */
+    .accent-med { border-left: 4px solid var(--med-color); }
+    .accent-lab { border-left: 4px solid var(--lab-color); }
+    .accent-ehs { border-left: 4px solid var(--ehs-color); }
+
+/* --- Original head style block 2 --- */
+
+        .custom-scrollbar::-webkit-scrollbar       { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #C8C9C7; }
+        .animate-fade-in  { animation: fadeIn  0.3s ease-in-out; }
+        .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes fadeIn  { from { opacity: 0; }                          to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+
+/* ============================================================
+   CES Hub Unified UI Theme v5
+   Purpose: keep all modules visually consistent after migration
+   ============================================================ */
+:root {
+  --ces-bg: #f5f6f8;
+  --ces-surface: #ffffff;
+  --ces-border: #f0f2f5;
+  --ces-border-strong: #d9e2ef;
+  --ces-text: #003DA5;
+  --ces-muted: #5B7F95;
+  --ces-soft: #f5f6f8;
+  --ces-primary: #003DA5;
+  --ces-primary-2: #003DA5;
+  --ces-primary-soft: #f5f6f8;
+  --ces-blue: #003DA5;
+  --ces-cyan: #004aad;
+  --ces-emerald: #004aad;
+  --ces-amber: #E4002B;
+  --ces-rose: #E4002B;
+  --ces-violet: #003DA5;
+  --ces-orange: #E4002B;
+  --ces-shadow-xs: 0 1px 2px rgba(15, 23, 42, .04);
+  --ces-shadow-sm: 0 8px 24px rgba(15, 23, 42, .055);
+  --ces-shadow-md: 0 16px 42px rgba(15, 23, 42, .09);
+  --ces-radius: 24px;
+  --ces-radius-sm: 16px;
+}
+
+html,
+body {
+  background: var(--ces-bg) !important;
+  color: var(--ces-text);
+}
+
+body {
+  letter-spacing: -.005em;
+}
+
+/* Shell / global header */
+#main-dashboard {
+  background: linear-gradient(180deg, #ffffff 0, var(--ces-bg) 280px) !important;
+}
+
+#sidebar-menu {
+  border-color: var(--ces-border) !important;
+  box-shadow: 10px 0 40px rgba(15, 23, 42, .035) !important;
+}
+
+#sidebar-menu .nav-item {
+  border: 1px solid transparent;
+  min-height: 44px;
+}
+
+#sidebar-menu .nav-item:hover {
+  background: #f8fafc !important;
+  border-color: var(--ces-border) !important;
+}
+
+#sidebar-menu .nav-item.active {
+  background: var(--ces-primary-soft) !important;
+  color: var(--ces-primary) !important;
+  border-color: #f0f2f5 !important;
+  box-shadow: var(--ces-shadow-xs);
+}
+
+#sidebar-menu .nav-item.active i,
+#sidebar-menu .nav-item.active span {
+  color: var(--ces-primary) !important;
+}
+
+#sidebar-menu .nav-item.active > div:first-child {
+  background: var(--ces-primary) !important;
+  opacity: 1 !important;
+}
+
+#header-page-title {
+  font-size: 1.35rem !important;
+  font-weight: 900 !important;
+  letter-spacing: -.025em !important;
+  color: var(--ces-text) !important;
+}
+
+#lastUpdateText {
+  background: #f5f6f8 !important;
+  color: #003DA5 !important;
+  border-color: #f0f2f5 !important;
+}
+
+#app-main-content {
+  background: transparent;
+}
+
+/* Unified page/view header */
+.ces-view-root {
+  max-width: 100%;
+}
+
+.ces-view-header,
+.stockpro-header-card.ces-view-header {
+  background: rgba(255, 255, 255, .94) !important;
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--ces-border) !important;
+  border-radius: var(--ces-radius) !important;
+  box-shadow: var(--ces-shadow-sm) !important;
+  padding: 20px !important;
+  min-height: 96px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.ces-view-header h1,
+.ces-view-header h2,
+.ces-view-header h3 {
+  color: var(--ces-text) !important;
+  font-weight: 900 !important;
+  letter-spacing: -.025em !important;
+  line-height: 1.05 !important;
+}
+
+.ces-view-header p {
+  color: var(--ces-muted) !important;
+  font-weight: 700 !important;
+}
+
+.ces-view-icon,
+.stockpro-icon.ces-view-icon {
+  width: 52px !important;
+  height: 52px !important;
+  min-width: 52px !important;
+  border-radius: 16px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #003DA5 !important;
+  background: rgba(0, 61, 165, 0.1) !important;
+  box-shadow: 0 4px 12px rgba(0, 61, 165, 0.08) !important;
+}
+
+.ces-view-icon i,
+.stockpro-icon.ces-view-icon i {
+  color: #003DA5 !important;
+  font-size: 1.3rem !important;
+}
+
+/* Cards / sections: normalize spacing and border */
+.ces-view-root > .bg-white,
+.ces-view-root > .stockpro-shell > .stockpro-card,
+.ces-view-root .kpi-card,
+.stockpro-card,
+.stockpro-hero,
+.stockpro-filter-card {
+  border-color: var(--ces-border) !important;
+  box-shadow: var(--ces-shadow-xs) !important;
+}
+
+.ces-view-root > .bg-white:not(.ces-view-header):hover,
+.stockpro-card:hover {
+  box-shadow: var(--ces-shadow-sm) !important;
+}
+
+/* Buttons / controls */
+.ces-view-root button,
+.ces-view-root a,
+.sp-btn {
+  transition: all .18s ease !important;
+}
+
+.ces-ui-action,
+.ces-view-header button,
+.ces-view-header a,
+.sp-btn {
+  border-radius: 14px !important;
+  font-weight: 800 !important;
+  box-shadow: none !important;
+}
+
+.ces-view-header button:hover,
+.ces-view-header a:hover,
+.sp-btn:hover {
+  transform: translateY(-1px);
+}
+
+.ces-segmented,
+.ces-view-header .bg-gray-100,
+.ces-view-header .bg-slate-100,
+.ces-view-header .bg-indigo-50,
+.ces-view-header .bg-blue-50\/50 {
+  background: var(--ces-soft) !important;
+  border: 1px solid var(--ces-border) !important;
+  border-radius: 16px !important;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, .03) !important;
+}
+
+.ces-segmented button,
+.ces-view-header .bg-gray-100 button,
+.ces-view-header .bg-slate-100 button,
+.ces-view-header .bg-indigo-50 button,
+.ces-view-header .bg-blue-50\/50 button {
+  border-radius: 12px !important;
+}
+
+/* Global loading overlay */
+#loadingOverlay {
+  background: rgba(248, 250, 252, .78) !important;
+  backdrop-filter: blur(18px) saturate(120%);
+}
+
+.ces-loading-panel {
+  width: min(360px, calc(100vw - 48px));
+  background: rgba(255, 255, 255, .96);
+  border: 1px solid rgba(226, 232, 240, .9);
+  border-radius: 30px;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, .16);
+  padding: 30px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ces-loading-mark {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 26px;
+  background: linear-gradient(135deg, #f5f6f8, #f5f6f8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ces-primary);
+  box-shadow: inset 0 0 0 1px #f0f2f5;
+}
+
+.ces-loading-ring {
+  position: absolute;
+  inset: 8px;
+  border-radius: 22px;
+  border: 4px solid #f0f2f5;
+  border-top-color: var(--ces-primary);
+  animation: cesSpin .85s linear infinite;
+}
+
+.ces-loading-mark i {
+  position: relative;
+  z-index: 1;
+  font-size: 1.35rem;
+  animation: cesPulse 1.2s ease-in-out infinite;
+}
+
+#loadingText {
+  color: var(--ces-primary) !important;
+  font-size: .9rem !important;
+  font-weight: 900 !important;
+  letter-spacing: .015em !important;
+}
+
+.ces-loading-subtext {
+  color: var(--ces-muted);
+  font-size: .72rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+@keyframes cesSpin { to { transform: rotate(360deg); } }
+@keyframes cesPulse { 0%, 100% { transform: scale(1); opacity: .9; } 50% { transform: scale(1.08); opacity: 1; } }
+
+/* SweetAlert / popup consistency */
+.swal2-popup {
+  border-radius: 28px !important;
+  font-family: 'Prompt', sans-serif !important;
+  border: 1px solid var(--ces-border) !important;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, .18) !important;
+}
+
+.swal2-title {
+  color: var(--ces-text) !important;
+  font-weight: 900 !important;
+  letter-spacing: -.02em !important;
+}
+
+.swal2-html-container {
+  color: var(--ces-muted) !important;
+  font-weight: 600 !important;
+}
+
+.swal2-confirm {
+  background: var(--ces-primary) !important;
+  border-radius: 14px !important;
+  font-weight: 800 !important;
+  box-shadow: 0 10px 24px rgba(79, 70, 229, .18) !important;
+}
+
+.swal2-cancel {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border-radius: 14px !important;
+  font-weight: 800 !important;
+}
+
+.swal2-icon {
+  border-width: 3px !important;
+}
+
+/* Stock Pro modules normalization */
+.stockpro-page {
+  padding-bottom: 5rem;
+}
+
+.stockpro-shell {
+  gap: 18px;
+}
+
+.stockpro-header-card {
+  margin-bottom: 18px;
+}
+
+.stockpro-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.stockpro-title-wrap h1 {
+  font-size: 1.22rem !important;
+}
+
+.stockpro-title-wrap p {
+  font-size: .78rem !important;
+}
+
+.stockpro-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* Remove accidental text-node residue from migrations visually when left as element text */
+.ces-debug-residue {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .ces-view-header,
+  .stockpro-header-card.ces-view-header {
+    align-items: stretch !important;
+    flex-direction: column !important;
+    position: static;
+    padding: 16px !important;
+  }
+
+  .ces-view-header > div:last-child,
+  .stockpro-actions {
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .ces-view-icon,
+  .stockpro-icon.ces-view-icon {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+  }
+
+  #app-main-content {
+    padding: 1rem !important;
+  }
+}
+
+/* ===== Revenue Dashboard Card Themes ===== */
+.r-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; padding: 16px; }
+.r-card.theme-total { border-color: #003DA5; border-left: 4px solid #003DA5; }
+.r-card.theme-med { border-color: #e2e8f0; }
+.r-card.theme-lab { border-color: #e2e8f0; }
+.r-card.theme-ehs { border-color: #e2e8f0; }
+.r-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.r-label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; }
+.r-pct-badge { font-size: 10px; font-weight: 900; padding: 2px 8px; border-radius: 999px; }
+.r-body { }
+.r-value { font-size: 28px; font-weight: 1000; color: #0f172a; line-height: 1.1; display: block; }
+.r-prog-track { height: 4px; background: #f1f5f9; border-radius: 99px; margin-top: 10px; overflow: hidden; }
+.r-prog-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; background: #003DA5; }
+.theme-total .r-prog-fill { background: #003DA5; }
+.theme-med .r-prog-fill { background: #004aad; }
+.theme-lab .r-prog-fill { background: #19a7ce; }
+.theme-ehs .r-prog-fill { background: #0fc1a1; }
+.theme-total .r-pct-badge { background: #dbe4ff; color: #003DA5; }
+.theme-med .r-pct-badge { background: #dbe4ff; color: #004aad; }
+.theme-lab .r-pct-badge { background: #e0f7fa; color: #0e7490; }
+.theme-ehs .r-pct-badge { background: #d1fae5; color: #047857; }
+.r-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 11px; color: #94a3b8; }
+
+/* ===== Yearly/Job Dashboard Card Themes ===== */
+.y-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; padding: 16px; box-shadow: 0 4px 12px rgba(30,58,138,0.04); }
+.y-head { display: flex; justify-content: space-between; align-items: flex-start; }
+.y-icon-box { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.value-main { font-size: 28px; font-weight: 1000; color: #0f172a; }
+.value-target { font-size: 13px; color: #94a3b8; font-weight: 700; }
+.progress-section { margin-top: 10px; }
+.progress-info { display: flex; justify-content: space-between; font-size: 10px; color: #64748b; font-weight: 700; margin-bottom: 4px; }
+.progress-rail { height: 5px; background: #f1f5f9; border-radius: 99px; overflow: hidden; }
+.progress-bar { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
+
+
+/* ============================================================
+   CES Final N Health Theme Normalization — 20260708
+   Applied across GitHub frontend pages.
+============================================================ */
+:root{--ces-blue:#003DA5;--ces-blue2:#0A5BD3;--ces-blue-soft:#EEF5FF;--ces-cyan:#00A9E0;--ces-teal:#00A88E;--ces-red:#E53935;--ces-navy:#102A56;--ces-bg:#F6F9FD;--ces-card:#FFFFFF;--ces-text:#172033;--ces-muted:#63748A;--ces-border:#DCE7F5;--ces-shadow:0 12px 30px rgba(16,42,86,.08)}
+body{background:var(--ces-bg)!important;color:var(--ces-text)!important}
+.nav-item.active{background:var(--ces-blue-soft)!important;color:var(--ces-blue)!important;border-left:4px solid var(--ces-blue)!important}
+.stockpro-header-card,.ces-view-header,.stockpro-card,.stockpro-filter-card,.r-card,.r-card-static{background:#fff!important;border:1px solid var(--ces-border)!important;box-shadow:var(--ces-shadow)!important}
+.stockpro-icon,.ces-view-icon{background:linear-gradient(135deg,var(--ces-blue),var(--ces-blue2))!important;color:#fff!important}
+.sp-btn.primary,.bg-\[\#003DA5\],button.bg-\[\#003DA5\]{background:linear-gradient(135deg,var(--ces-blue),var(--ces-blue2))!important;color:#fff!important}

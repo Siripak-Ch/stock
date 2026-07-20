@@ -1,0 +1,203 @@
+<div class="space-y-6 fade-in hidden pb-20" id="view-report">
+<div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
+<div class="flex items-center gap-4 w-full md:w-auto overflow-hidden">
+<div class="p-3 bg-[#003DA5]/10 rounded-xl text-[#003DA5] shadow-lg shrink-0"><i class="fas fa-file-contract text-2xl"></i></div>
+<div class="min-w-0">
+<h2 class="text-xl font-extrabold text-gray-800 tracking-tight">Report CSI</h2>
+<p class="text-sm text-gray-400 font-medium">SLA Tracking & Complaint Management</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 items-center justify-end w-full md:w-auto shrink-0">
+<div class="bg-[#003DA5]/50 p-1 rounded-xl flex border border-[#003DA5] shadow-inner mr-2">
+<button class="px-4 py-2 rounded-lg text-xs font-bold transition-all" id="btn-rteam-All" onclick="setRFilter('team','All')">All</button>
+<button class="px-4 py-2 rounded-lg text-xs font-bold transition-all" id="btn-rteam-MED" onclick="setRFilter('team','MED')">MED</button>
+<button class="px-4 py-2 rounded-lg text-xs font-bold transition-all" id="btn-rteam-LAB" onclick="setRFilter('team','LAB')">LAB</button>
+<button class="px-4 py-2 rounded-lg text-xs font-bold transition-all" id="btn-rteam-EHS" onclick="setRFilter('team','EHS')">EHS</button>
+</div>
+<button class="w-9 h-9 flex items-center justify-center bg-[#003DA5]/10 text-[#003DA5] rounded-xl hover:bg-[#003DA5] hover:text-white transition-all shadow-sm border border-[#003DA5]" onclick="loadAllData()" title="Refresh Data">
+<i class="fas fa-sync-alt"></i>
+</button>
+<button class="w-9 h-9 flex items-center justify-center bg-[#059669]/10 text-[#059669] rounded-xl hover:bg-[#059669] hover:text-white transition-all shadow-sm border border-[#059669]/20" onclick="exportCSIToExcel()" title="Export to Excel">
+<i class="fas fa-file-excel"></i>
+</button>
+<label class="cursor-pointer w-9 h-9 flex items-center justify-center bg-[#003DA5]/10 text-[#003DA5] rounded-xl hover:bg-[#003DA5] hover:text-white transition-all shadow-sm border border-[#003DA5]" title="Upload CSI Data">
+<i class="fas fa-upload"></i>
+<input accept=".xlsx" class="hidden" id="reportFileInput" onchange="handleReportUpload(event)" type="file"/>
+</label>
+<button class="ml-auto w-9 h-9 flex items-center justify-center bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm border border-red-100" onclick="exportReportToPDF()" title="Export Page to PDF">
+<i class="fas fa-file-pdf"></i>
+</button>
+</div>
+</div>
+<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 grid grid-cols-2 md:grid-cols-4 gap-4 items-center">
+<div><label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Year</label><select class="w-full border rounded-xl px-3 py-2 text-xs font-bold bg-gray-50 outline-none cursor-pointer" id="r-filter-year" onchange="setRFilter('year',this.value)"></select></div>
+<div><label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Month</label><select class="w-full border rounded-xl px-3 py-2 text-xs font-bold bg-gray-50 outline-none cursor-pointer" id="r-filter-month" onchange="setRFilter('month',this.value)"></select></div>
+<div class="col-span-2 flex justify-end items-end pb-1">
+<span class="text-[10px] font-bold px-3 py-1 rounded-full" style="background:rgba(0,61,165,0.1);color:#003DA5;border:1px solid rgba(0,61,165,0.2)"><i class="fas fa-info-circle mr-1"></i> Global Filter Applied</span>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-8 gap-3">
+<div class="kpi-static-card"><div class="kpi-top-row"><span class="kpi-label-text">Total Response</span><div class="kpi-icon-badge bg-gray-100"><i class="fas fa-clipboard-list"></i></div></div><div><div class="kpi-value-text" id="r-total">0</div></div></div>
+<div class="kpi-static-card"><div class="kpi-top-row"><span class="kpi-label-text text-[#003DA5]">Finished</span><div class="kpi-icon-badge bg-[#003DA5]/10/10 text-[#003DA5]"><i class="fas fa-check-circle"></i></div></div><div><div class="kpi-value-text text-[#003DA5]" id="r-finish">0</div><div class="kpi-sub-text text-[#003DA5]" id="r-finish-pct">0%</div></div></div>
+<div class="kpi-static-card"><div class="kpi-top-row"><span class="kpi-label-text text-red-600">Pending</span><div class="kpi-icon-badge bg-red-100 text-red-600"><i class="fas fa-clock"></i></div></div><div><div class="kpi-value-text text-red-600" id="r-notfinish">0</div><div class="kpi-sub-text text-red-400" id="r-notfinish-pct">0%</div></div></div>
+<div class="kpi-static-card"><div class="kpi-top-row"><span class="kpi-label-text text-blue-600">On Time</span><div class="kpi-icon-badge bg-blue-100 text-blue-600"><i class="fas fa-stopwatch"></i></div></div><div><div class="kpi-value-text text-blue-600" id="r-ontime">0</div><div class="kpi-sub-text text-blue-400" id="r-ontime-pct">0%</div></div></div>
+<div class="kpi-static-card"><div class="kpi-top-row"><span class="kpi-label-text text-[#003DA5]">Complete</span><div class="kpi-icon-badge bg-blue-50 text-[#003DA5]"><i class="fas fa-clipboard-check"></i></div></div><div><div class="kpi-value-text text-[#003DA5]" id="r-complete">0</div><div class="kpi-sub-text text-[#003DA5]" id="r-complete-pct">0%</div></div></div>
+<div class="kpi-static-card"><div class="kpi-top-row"><span class="kpi-label-text text-[#003DA5]">Avg. Sat</span><div class="kpi-icon-badge bg-[#003DA5]/10/10 text-[#003DA5]"><i class="fas fa-star"></i></div></div><div><div class="kpi-value-text text-[#003DA5]" id="r-avg-sat">0.0</div></div></div>
+<div class="kpi-static-card"><div class="kpi-top-row"><span class="kpi-label-text text-[#003DA5]">Incident</span><div class="kpi-icon-badge bg-blue-50 text-[#003DA5]"><i class="fas fa-exclamation-circle"></i></div></div><div><div class="kpi-value-text text-[#003DA5]" id="incident-count-badge">0</div></div></div>
+<div class="kpi-static-card"><div class="kpi-top-row"><span class="kpi-label-text text-[#003DA5]">Resolved</span><div class="kpi-icon-badge bg-blue-50 text-[#003DA5]"><i class="fas fa-shield-check"></i></div></div><div><div class="kpi-value-text text-[#003DA5]" id="resolved-count-badge">0</div></div></div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2">
+<h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2"><i class="fas fa-chart-bar text-[#003DA5] mr-2"></i>Monthly Trend (Response)</h3>
+<div class="h-80 w-full relative"><canvas id="reportTrendChart"></canvas></div>
+</div>
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+<h3 class="text-lg font-bold text-gray-800 mb-6 text-center">Service Share (%)</h3>
+<div class="h-80 flex justify-center items-center w-full relative"><canvas id="reportShareChart"></canvas></div>
+</div>
+</div>
+<div class="bg-white rounded-2xl shadow-sm border border-red-100 overflow-hidden flex flex-col">
+<div class="p-5 bg-red-50/50 border-b border-red-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<h3 class="font-bold text-red-800 text-sm flex items-center"><i class="fas fa-exclamation-triangle mr-2"></i>Incident Tracker</h3>
+<div class="flex flex-wrap gap-2 items-center">
+<input class="text-[10px] pl-3 pr-3 py-2 border rounded-xl w-full md:w-48 outline-none border-red-200 focus:ring-2 focus:ring-red-100 transition-all" id="r-inc-search" onkeyup="renderCRMTable()" placeholder="Search Customer..." type="text"/>
+</div>
+</div>
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-left border-collapse crm-table">
+<thead><tr>
+<th class="cursor-pointer" onclick="sortRTable(0)">Date</th>
+<th class="cursor-pointer" onclick="sortRTable(1)">Customer</th>
+<th class="cursor-pointer" onclick="sortRTable(2)">Team</th>
+<th class="cursor-pointer text-center" onclick="sortRTable(3)">Sat.</th>
+<th class="cursor-pointer text-center" onclick="sortRTable(4)">Late</th>
+<th class="cursor-pointer w-1/3" onclick="sortRTable(5)">Issue / Comment</th>
+<th class="text-center">Status</th><th class="text-center">Action</th>
+</tr></thead>
+<tbody class="text-sm" id="crmTableBody"></tbody>
+</table>
+</div>
+</div>
+<div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mt-6">
+<div class="p-5 border-b border-gray-50 flex justify-between items-center bg-gradient-to-r from-white to-[#004aad]/30">
+<div>
+<h3 class="font-bold text-gray-800 flex items-center gap-2">
+<i class="fas fa-users text-[#003DA5]"></i> Customer List (รายละเอียดลูกค้า)
+                </h3>
+<p class="text-[10px] text-gray-400 font-medium ml-6">รายการประเมิน CSI ทั้งหมดตามการกรองข้อมูล</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="relative">
+<i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+<input class="pl-8 pr-4 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-[#003DA5] outline-none w-48 transition-all" id="csi-list-search" oninput="renderCSITable()" placeholder="ค้นหาชื่อลูกค้า/ปัญหา..." type="text"/>
+</div>
+<span class="px-3 py-1 bg-[#003DA5]/10 text-[#003DA5] text-[10px] font-bold rounded-full" id="csi-count-badge">0 Records</span>
+</div>
+</div>
+<div class="overflow-x-auto custom-scrollbar" style="max-height: 600px;">
+<table class="w-full text-left border-collapse crm-table">
+<thead class="sticky top-0 z-10">
+<tr>
+<th class="cursor-pointer hover:text-[#003DA5]" onclick="sortCSITable(0)">Date <i class="fas fa-sort ml-1 opacity-30"></i></th>
+<th class="cursor-pointer hover:text-[#003DA5]" onclick="sortCSITable(1)">Customer <i class="fas fa-sort ml-1 opacity-30"></i></th>
+<th>Team</th>
+<th class="text-center cursor-pointer hover:text-[#003DA5]" onclick="sortCSITable(2)">Sat. <i class="fas fa-sort ml-1 opacity-30"></i></th>
+<th class="text-center cursor-pointer hover:text-[#003DA5]" onclick="sortCSITable(3)">Late <i class="fas fa-sort ml-1 opacity-30"></i></th>
+<th class="min-w-[250px]">Issue / Comment</th>
+</tr>
+</thead>
+<tbody id="csi-list-body"></tbody>
+</table>
+</div>
+</div>
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+<div class="flex justify-between items-center mb-6 pb-4 border-b">
+<h3 class="text-xl font-bold text-gray-800"><i class="fas fa-comments text-[#003DA5] mr-2"></i>Customer Feedback</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100 h-80 flex flex-col">
+<h4 class="font-bold text-[#0046a3] mb-3 pb-2 border-b border-blue-200 text-xs shrink-0">MED</h4>
+<div class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1" id="r-comm-med"></div>
+</div>
+<div class="bg-cyan-50/50 p-4 rounded-xl border border-cyan-100 h-80 flex flex-col">
+<h4 class="font-bold text-[#006cff] mb-3 pb-2 border-b border-cyan-200 text-xs shrink-0">LAB</h4>
+<div class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1" id="r-comm-lab"></div>
+</div>
+<div class="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100 h-80 flex flex-col">
+<h4 class="font-bold text-emerald-600 mb-3 pb-2 border-b border-emerald-200 text-xs shrink-0">EHS</h4>
+<div class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1" id="r-comm-ehs"></div>
+</div>
+</div>
+</div>
+<div class="fixed inset-0 bg-black/50 z-[120] hidden flex items-center justify-center backdrop-blur-sm p-4" id="ticketModal">
+<div class="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full animate-fade-in">
+<h3 class="text-lg font-bold text-[#003DA5] mb-2 border-b pb-2"><i class="fas fa-tools mr-2"></i>Action Required</h3>
+<p class="text-xs text-gray-500 mb-4">Customer: <span class="font-bold text-gray-700" id="ticket-customer"></span></p>
+<input id="ticket-id" type="hidden"/>
+<div class="space-y-4">
+<div><label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Root Cause (สาเหตุ)</label><textarea class="w-full border rounded-lg p-3 text-sm h-20 outline-none focus:ring-2 focus:ring-[#003DA5]" id="rootCause"></textarea></div>
+<div><label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Solution (การแก้ไข)</label><textarea class="w-full border rounded-lg p-3 text-sm h-20 outline-none focus:ring-2 focus:ring-[#003DA5]" id="solution"></textarea></div>
+</div>
+<div class="flex gap-3 mt-6">
+<button class="flex-1 py-2 bg-gray-100 rounded-lg font-bold text-gray-600 hover:bg-gray-200" onclick="closeTicketModal()">Cancel</button>
+<button class="flex-1 py-2 bg-[#003DA5] text-white rounded-lg font-bold shadow-md hover:bg-[#003DA5]" onclick="submitTicket()">Save & Close</button>
+</div>
+</div>
+</div>
+<div class="fixed inset-0 bg-black/50 z-[120] hidden flex items-center justify-center backdrop-blur-sm p-4" id="commentModal">
+<div class="bg-white rounded-2xl shadow-2xl p-6 max-w-lg w-full animate-fade-in">
+<div class="flex justify-between items-center mb-4 border-b pb-2">
+<h3 class="text-lg font-bold text-gray-800"><i class="fas fa-comment-dots text-[#003DA5] mr-2"></i>Full Comment</h3>
+<button class="text-gray-400 hover:text-red-500" onclick="closeCommentModal()"><i class="fas fa-times text-xl"></i></button>
+</div>
+<div class="bg-gray-50 p-4 rounded-xl border border-gray-100"><p class="text-gray-700 text-sm italic whitespace-pre-wrap" id="fullCommentText"></p></div>
+<div class="mt-6 text-right"><button class="px-6 py-2 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-900" onclick="closeCommentModal()">Close</button></div>
+</div>
+</div>
+</div><style>
+    #view-yearly { font-family: 'Prompt', sans-serif; }
+
+    /* --- Modern KPI Box Design --- */
+    .y-card {
+        background: white;
+        border-radius: 24px;
+        padding: 22px;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 170px;
+    }
+    .y-card:hover { 
+        transform: translateY(-5px); 
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+        border-color: #e2e8f0;
+    }
+    
+    .y-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    
+    .y-icon-box {
+        width: 44px; height: 44px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px; flex-shrink: 0;
+    }
+
+    .value-main { font-size: 1.5rem; font-weight: 800; color: #1e293b; letter-spacing: -0.025em; }
+    .value-target { font-size: 0.875rem; font-weight: 600; color: #94a3b8; }
+
+    /* Progress System */
+    .progress-section { margin-top: auto; }
+    .progress-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .progress-pct { font-size: 11px; font-weight: 700; }
+    .progress-rail { width: 100%; height: 8px; background: #f1f5f9; border-radius: 10px; margin-top: 8px; overflow: hidden; }
+    .progress-bar { height: 100%; border-radius: 10px; transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+    /* Table Design */
+    .y-table { width: 100%; border-collapse: collapse; }
+    .y-table th { background: #f8fafc; padding: 14px 16px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #f1f5f9; text-align: left; }
+    .y-table td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+    .y-table tr { cursor: pointer; transition: all 0.2s; }
+    .y-table tr:hover { background: #f8fafc; }
+</style>

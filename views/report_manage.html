@@ -1,0 +1,203 @@
+<div class="hidden space-y-6 animate-fade-in pb-20" id="view-report_manage">
+<div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex justify-between items-center sticky top-0 z-30">
+<div class="flex items-center gap-4">
+<div class="p-3 bg-[#003DA5]/10 rounded-2xl text-[#003DA5] shadow-sm shadow-[#003DA5]-100">
+<i class="fas fa-file-invoice-dollar text-2xl"></i>
+</div>
+<div>
+<h2 class="text-xl font-black text-gray-800 tracking-tight leading-none">Report Management</h2>
+<p class="text-[11px] text-gray-400 font-bold uppercase tracking-widest mt-1.5">Engineering Service Hub</p>
+</div>
+</div>
+<button class="px-5 py-2.5 bg-red-500 text-white rounded-xl text-xs font-bold hover:bg-red-600 transition-all border border-red-600 uppercase shadow-md flex items-center" onclick="askResetRM()">
+<i class="fas fa-redo-alt mr-2"></i> Reset Data
+        </button>
+</div>
+<div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
+<div class="space-y-2">
+<label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Name <span class="text-red-500">*</span></label>
+<input class="w-full bg-white border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 block p-3 outline-none transition-all" id="rm-empName" oninput="this.classList.remove('border-red-500', 'bg-red-50')" required="" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Employee ID <span class="text-red-500">*</span></label>
+<input class="w-full bg-white border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 block p-3 outline-none transition-all" id="rm-empId" oninput="this.classList.remove('border-red-500', 'bg-red-50')" required="" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Department / Team</label>
+<input class="w-full bg-white border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 block p-3 outline-none transition-all" id="rm-dept" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Cost Center <span class="text-red-500">*</span></label>
+<input class="w-full bg-white border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 block p-3 outline-none transition-all" id="rm-costCenter" list="rm-costCenterList" oninput="this.classList.remove('border-red-500', 'bg-red-50')" placeholder="Select or Type" required="" type="text"/>
+<datalist id="rm-costCenterList">
+<option value="6206"></option>
+<option value="6207"></option>
+<option value="6154"></option>
+<option value="6067"></option>
+</datalist>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Main Team <span class="text-red-500">*</span></label>
+<select class="w-full bg-white border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 block p-3 outline-none transition-all" id="rm-mainTeam" onchange="this.classList.remove('border-red-500', 'bg-red-50')" required="">
+<option value="">-- Select Team --</option>
+<option value="MED">MED</option>
+<option value="LAB">LAB</option>
+<option value="EHS">EHS</option>
+<option value="OTHER">OTHER</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-indigo-500 uppercase tracking-wide"><i class="fas fa-signature mr-1"></i> Signature</label>
+<select class="w-full bg-indigo-50 border border-[#003DA5]/20 text-indigo-800 text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 block p-3 outline-none font-medium cursor-pointer transition-all" id="rm-sigId">
+<option value="none">Loading...</option>
+</select>
+</div>
+</div>
+<div class="overflow-x-auto rounded-2xl border border-gray-100 shadow-sm mt-6">
+<table class="w-full text-left border-collapse min-w-max">
+<thead>
+<tr class="bg-gray-50 border-b border-gray-100 text-xs uppercase tracking-wider text-gray-500">
+<th class="p-3 font-bold w-40">Date <span class="text-red-500">*</span></th>
+<th class="p-3 font-bold w-32">Location <span class="text-red-500">*</span></th>
+<th class="p-3 font-bold text-center w-28">Start <span class="text-red-500">*</span></th>
+<th class="p-3 font-bold text-center w-28">End <span class="text-red-500">*</span></th>
+<th class="p-3 font-bold text-center w-24">Holiday</th>
+<th class="p-3 font-bold text-center w-24 text-indigo-600 bg-indigo-50/50">Hrs (1.0)</th>
+<th class="p-3 font-bold text-center w-24 text-[#003DA5] bg-blue-50/50">Hrs (1.5)</th>
+<th class="p-3 font-bold text-center w-16">Act</th>
+</tr>
+</thead>
+<tbody class="bg-white" id="rm-rowBody"></tbody>
+<tfoot class="bg-gray-50/50 border-t border-gray-100">
+<tr>
+<td class="p-3" colspan="4">
+<button class="flex items-center gap-2 text-indigo-600 font-bold text-xs bg-indigo-50 px-4 py-2 rounded-xl hover:bg-indigo-100 transition-colors" onclick="addRowRM()">
+<i class="fas fa-plus-circle"></i> ADD ROW
+                            </button>
+</td>
+<td class="p-3 text-right font-black text-gray-600 text-xs">TOTAL</td>
+<td class="p-3 text-center font-black text-indigo-600 bg-indigo-50/50 text-sm" id="rm-sum10">-</td>
+<td class="p-3 text-center font-black text-[#003DA5] bg-blue-50/50 text-sm" id="rm-sum15">-</td>
+<td></td>
+</tr>
+</tfoot>
+</table>
+</div>
+<div class="pt-4 flex justify-end">
+<button class="bg-[#003DA5]/10 hover:bg-[#003DA5]/20 text-white font-black text-sm py-3 px-8 rounded-xl shadow-lg shadow-gray-200 transition-all flex items-center gap-3" id="rm-generateBtn" onclick="generateReportRM()">
+<i class="fas fa-magic" id="rm-btnIcon"></i>
+<span id="rm-btnText">GENERATE & EXPORT REPORT</span>
+<i class="fas fa-circle-notch fa-spin hidden" id="rm-loadingSpinner"></i>
+</button>
+</div>
+</div>
+<div class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6" id="rm-resultSection">
+<div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
+<div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl">
+<h4 class="font-bold text-gray-600 text-xs uppercase italic"><i class="fas fa-file-pdf mr-1"></i> Report Template (CES-F-001)</h4>
+<div class="flex gap-2">
+<a class="px-3 py-1.5 bg-white text-gray-600 rounded-lg text-[10px] font-black border border-gray-200 shadow-sm hover:bg-gray-700 hover:text-white transition-all" href="#" id="rm-tempPdfView" target="_blank">PREVIEW</a>
+<a class="px-3 py-1.5 bg-gray-700 text-white rounded-lg text-[10px] font-black shadow-md" href="#" id="rm-tempPdfDown" target="_blank">PDF</a>
+<a class="px-3 py-1.5 bg-[#059669] text-white rounded-lg text-[10px] font-black shadow-md" href="#" id="rm-tempExcelDown" target="_blank">EXCEL</a>
+</div>
+</div>
+<iframe class="w-full h-[600px] rounded-2xl border-0 bg-slate-50 shadow-inner" id="rm-tempPdfFrame"></iframe>
+</div>
+<div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4 flex flex-col">
+<div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl">
+<h4 class="font-bold text-gray-600 text-xs uppercase italic"><i class="fas fa-table mr-1"></i> Timesheet Data</h4>
+<div class="flex gap-2">
+<a class="px-3 py-1.5 bg-white text-gray-600 rounded-lg text-[10px] font-black border border-gray-200 shadow-sm hover:bg-gray-700 hover:text-white transition-all" href="#" id="rm-tsPdfView" target="_blank">PREVIEW</a>
+<a class="px-3 py-1.5 bg-gray-700 text-white rounded-lg text-[10px] font-black shadow-md" href="#" id="rm-tsPdfDown" target="_blank">PDF</a>
+<a class="px-3 py-1.5 bg-[#059669] text-white rounded-lg text-[10px] font-black shadow-md" href="#" id="rm-tsExcelDown" target="_blank">EXCEL</a>
+</div>
+</div>
+<iframe class="w-full flex-grow min-h-[600px] rounded-2xl border-0 bg-slate-50 shadow-inner" id="rm-tsPdfFrame"></iframe>
+</div>
+</div>
+<div class="hidden bg-gradient-to-r from-indigo-50 to-[#004aad] p-8 rounded-3xl border border-[#003DA5]/20 mt-6 text-center animate-fade-in" id="rm-sendEmailSection">
+<div class="max-w-md mx-auto space-y-4">
+<div class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto text-indigo-500 text-2xl">
+<i class="fas fa-paper-plane"></i>
+</div>
+<div>
+<h4 class="text-lg font-black text-gray-800">Ready to Submit?</h4>
+<p class="text-sm text-gray-500 font-medium">ส่งไฟล์รายงานและ Timesheet ให้หัวหน้าทางอีเมล</p>
+</div>
+<button class="w-full bg-gradient-to-r from-[#003DA5] to-[#004aad] hover:from-[#003DA5] hover:to-[#004aad] text-white font-black py-4 px-8 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3 transform hover:scale-105" id="rm-sendBtn" onclick="sendToManagerRM()">
+<i class="fas fa-paper-plane"></i>
+<span>SEND TO MANAGER NOW</span>
+<i class="fas fa-circle-notch fa-spin hidden" id="rm-sendSpinner"></i>
+</button>
+</div>
+</div>
+<div class="hidden bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mt-6" id="rm-tablePreviewSection">
+<h4 class="font-bold text-gray-700 text-sm uppercase mb-4"><i class="fas fa-database mr-2 text-indigo-500"></i> Operation Log</h4>
+<div class="overflow-x-auto rounded-xl border border-gray-200">
+<table class="w-full text-left border-collapse">
+<thead class="bg-gray-100 text-gray-600 text-xs uppercase font-bold tracking-wider border-b">
+<tr>
+<th class="p-3 border-r">Employee ID</th>
+<th class="p-3 border-r">Date</th>
+<th class="p-3 border-r">Time</th>
+<th class="p-3 border-r">I/O</th>
+<th class="p-3 border-r">Hrs (1)</th>
+<th class="p-3 border-r">Hrs (1.5)</th>
+<th class="p-3">Cost Center</th>
+</tr>
+</thead>
+<tbody class="text-sm text-gray-700" id="rm-tsPreviewBody"></tbody>
+</table>
+</div>
+</div>
+</div><style>
+    /* --- เปิด Smooth Scroll สำหรับทั้งหน้า และซ่อนไม่ให้ทะลุ --- */
+    html, body { scroll-behavior: smooth; }
+    #view-weekly.hidden { display: none !important; }
+    #view-weekly.hidden * { display: none !important; visibility: hidden !important; }
+
+    /* --- Custom Theme Colors --- */
+    :root {
+        --color-med: #004aad;
+        --color-lab: #19a7ce;
+        --color-ehs: #0fc1a1;
+    }
+
+    /* Team Utilities */
+    .text-med { color: var(--color-med) !important; }
+    .bg-med { background-color: var(--color-med) !important; }
+    .border-med { border-color: var(--color-med) !important; }
+    
+    .text-lab { color: var(--color-lab) !important; }
+    .bg-lab { background-color: var(--color-lab) !important; }
+    .border-lab { border-color: var(--color-lab) !important; }
+    
+    .text-ehs { color: var(--color-ehs) !important; }
+    .bg-ehs { background-color: var(--color-ehs) !important; }
+    .border-ehs { border-color: var(--color-ehs) !important; }
+
+    /* Active Buttons */
+    .btn-med-active { background-color: var(--color-med) !important; color: white !important; box-shadow: 0 4px 12px rgba(0, 74, 173, 0.3); border: none !important; }
+    .btn-lab-active { background-color: var(--color-lab) !important; color: white !important; box-shadow: 0 4px 12px rgba(25, 167, 206, 0.3); border: none !important; }
+    .btn-ehs-active { background-color: var(--color-ehs) !important; color: white !important; box-shadow: 0 4px 12px rgba(15, 193, 161, 0.3); border: none !important; }
+
+    /* Custom Scrollbar */
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
+
+    /* Collage Photo Grid */
+    .collage-container { margin-top: 0.5rem; width: 100%; overflow: hidden; border-radius: 0.75rem; background-color: #f8fafc; border: 1px solid #f1f5f9; }
+    .collage-grid { display: grid; gap: 2px; width: 100%; aspect-ratio: 16/9; }
+    .collage-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+    .collage-2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+    .collage-3 { grid-template-columns: 1.5fr 1fr; grid-template-rows: 1fr 1fr; }
+    .collage-3 .collage-item:nth-child(1) { grid-row: 1 / span 2; }
+    .collage-more { grid-template-columns: 1.5fr 1fr; grid-template-rows: 1fr 1fr; }
+    .collage-more .collage-item:nth-child(1) { grid-row: 1 / span 2; }
+    .collage-item { position: relative; overflow: hidden; background-color: #e2e8f0; cursor: pointer; }
+    .collage-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+    .collage-item:hover .collage-img { transform: scale(1.05); }
+    .more-overlay { position: absolute; inset: 0; background-color: rgba(0,0,0,0.5); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: bold; backdrop-filter: blur(2px); }
+</style>

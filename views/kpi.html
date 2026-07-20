@@ -1,0 +1,277 @@
+<div class="hidden animate-fade-in space-y-6 pb-20" id="view-kpi">
+<div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
+<div class="flex items-center gap-4">
+<div class="p-3 bg-[#003DA5]/10 rounded-xl text-[#003DA5] shadow-sm shadow-[#003DA5]-100">
+<i class="fas fa-chart-line text-2xl"></i>
+</div>
+<div>
+<h2 class="text-xl font-extrabold text-slate-800 tracking-tight">KPI Tracking</h2>
+<p class="text-sm text-slate-400 font-medium">Strict Workflow & Notification System</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<a class="hidden px-4 py-2 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-xl text-xs font-bold transition-all shadow-sm border border-blue-100 flex items-center gap-2" href="#" id="kpi-drive-link" target="_blank">
+<i class="fas fa-folder-open"></i> <span id="kpi-drive-title">Drive</span>
+</a>
+<button class="relative p-2 text-slate-400 hover:text-[#003DA5] transition-colors group" onclick="openLateAlertModal()" title="Late Jobs Notification">
+<i class="fas fa-bell text-xl"></i>
+<span class="absolute top-0 right-0 w-4 h-4 bg-[#003DA5] text-white text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-white hidden group-hover:scale-110" id="kpi-late-badge">0</span>
+</button>
+<div class="flex bg-slate-100 p-1 rounded-xl">
+<button class="px-5 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-indigo-600 transition-all" id="kpi-tab-med" onclick="switchKpiTab('MED')">MED</button>
+<button class="px-5 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-indigo-600 transition-all" id="kpi-tab-lab" onclick="switchKpiTab('LAB')">LAB</button>
+<button class="px-5 py-2 rounded-lg text-xs font-bold bg-white text-indigo-600 shadow-sm transition-all" id="kpi-tab-ehs" onclick="switchKpiTab('EHS')">EHS</button>
+</div>
+</div>
+</div>
+<!-- KPI Performance: Before / On / Over KPI -->
+<div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-5 space-y-4" id="kpi-performance-section">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+<div>
+<h3 class="text-base font-extrabold text-slate-800 flex items-center gap-2">
+<i class="fas fa-gauge-high text-[#003DA5]"></i> KPI Performance Summary
+                </h3>
+<p class="text-xs text-slate-400 font-bold mt-1">จำนวนงานที่ ก่อน KPI / ตรง KPI / เกิน KPI ตาม filter ปัจจุบัน</p>
+</div>
+<span class="text-[10px] font-black text-slate-400 bg-slate-50 border border-slate-100 rounded-full px-3 py-1" id="kpi-performance-note">Filtered records: 0</span>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+<div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
+<div class="rounded-2xl border border-green-300 bg-green-50 p-4">
+<div class="flex items-center justify-between gap-3">
+<div>
+<p class="text-[10px] font-black uppercase tracking-widest text-green-700">ก่อน KPI</p>
+<h3 class="text-2xl font-black text-green-700 mt-1" id="kpi-perf-early">0</h3>
+<p class="text-[10px] font-bold text-green-600 mt-1">เสร็จก่อนกำหนด หรือยังไม่ถึงกำหนด</p>
+</div>
+<div class="w-10 h-10 rounded-xl bg-white/70 flex items-center justify-center text-green-600 shadow-sm"><i class="fas fa-arrow-trend-up"></i></div>
+</div>
+</div>
+<div class="rounded-2xl border border-[#5B7F95]/30 bg-slate-50 p-4">
+<div class="flex items-center justify-between gap-3">
+<div>
+<p class="text-[10px] font-black uppercase tracking-widest text-[#5B7F95]">ตรง KPI</p>
+<h3 class="text-2xl font-black text-[#5B7F95] mt-1" id="kpi-perf-on">0</h3>
+<p class="text-[10px] font-bold text-[#5B7F95] mt-1">เสร็จวันครบกำหนด หรือครบกำหนดวันนี้</p>
+</div>
+<div class="w-10 h-10 rounded-xl bg-white/70 flex items-center justify-center text-[#5B7F95] shadow-sm"><i class="fas fa-bullseye"></i></div>
+</div>
+</div>
+<div class="rounded-2xl border border-red-300 bg-red-50 p-4">
+<div class="flex items-center justify-between gap-3">
+<div>
+<p class="text-[10px] font-black uppercase tracking-widest text-[#E4002B]">เกิน KPI</p>
+<h3 class="text-2xl font-black text-[#E4002B] mt-1" id="kpi-perf-late">0</h3>
+<p class="text-[10px] font-bold text-[#E4002B]/80 mt-1">เลยกำหนด หรือเสร็จหลังกำหนด</p>
+</div>
+<div class="w-10 h-10 rounded-xl bg-white/70 flex items-center justify-center text-[#E4002B] shadow-sm"><i class="fas fa-triangle-exclamation"></i></div>
+</div>
+</div>
+</div>
+<div class="rounded-2xl border border-slate-100 bg-slate-50 p-4 flex items-center justify-center min-h-[190px]">
+<canvas height="180" id="kpi-performance-pie"></canvas>
+<div class="hidden text-xs text-slate-500 font-bold text-center" id="kpi-performance-pie-fallback"></div>
+</div>
+</div>
+</div>
+<!-- EHS Executive Summary -->
+<div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-5 space-y-4" id="kpi-summary-section">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+<div>
+<h3 class="text-base font-extrabold text-slate-800 flex items-center gap-2">
+<i class="fas fa-chart-pie text-indigo-500"></i> EHS Executive Summary
+                </h3>
+<p class="text-xs text-slate-400 font-bold mt-1">Active Jobs / Action Required / Risk / All Work / รอแก้ไข</p>
+</div>
+<span class="text-[10px] font-black text-slate-400 bg-slate-50 border border-slate-100 rounded-full px-3 py-1" id="kpi-summary-updated">Updated: -</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" id="kpi-summary-cards"></div>
+<div class="border-t border-slate-100 pt-4">
+<div class="flex items-center justify-between mb-3">
+<h4 class="text-xs font-black text-slate-500 uppercase tracking-widest">
+<i class="fas fa-list-check text-indigo-500 mr-1"></i> Detailed Status Summary
+                </h4>
+<span class="text-[10px] text-slate-400 font-bold">Pending Engineer / Pending SUP / Pending Report • คลิกซ้ำเพื่อยกเลิก</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="kpi-status-summary"></div>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+<span class="text-xs font-bold text-slate-400 uppercase tracking-widest mr-2">
+<i class="fas fa-filter mr-1"></i> Filter
+        </span>
+<input class="text-xs border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 font-bold text-slate-600 outline-none min-w-[220px]" id="kpi-filter-search" oninput="renderKPITable()" placeholder="Search customer / job / requester..."/>
+<select class="text-xs border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 font-bold text-slate-600 outline-none" id="kpi-filter-year" onchange="renderKPITable()">
+<option value="All">All Years</option>
+<option value="2026">2026</option>
+<option value="2025">2025</option>
+<option value="2024">2024</option>
+</select>
+<select class="text-xs border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 font-bold text-slate-600 outline-none" id="kpi-filter-month" onchange="renderKPITable()">
+<option value="All">All Months</option>
+<option value="01">Jan</option>
+<option value="02">Feb</option>
+<option value="03">Mar</option>
+<option value="04">Apr</option>
+<option value="05">May</option>
+<option value="06">Jun</option>
+<option value="07">Jul</option>
+<option value="08">Aug</option>
+<option value="09">Sep</option>
+<option value="10">Oct</option>
+<option value="11">Nov</option>
+<option value="12">Dec</option>
+</select>
+<select class="text-xs border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 font-bold text-slate-600 outline-none" id="kpi-filter-worktype" onchange="renderKPITable()">
+<option value="All">All Work Type</option>
+<option value="Network">Network</option>
+<option value="Commercial">Commercial</option>
+</select>
+<select class="text-xs border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 font-bold text-slate-600 outline-none" id="kpi-filter-status" onchange="renderKPITable()">
+<option value="All">All Overall Status</option>
+<option value="Process">On-Process</option>
+<option value="Completed">Completed</option>
+<option value="Late">Late</option>
+</select>
+<select class="text-xs border border-blue-200 rounded-lg px-3 py-2 bg-blue-50 font-bold text-[#003DA5] outline-none" id="kpi-filter-team" onchange="renderKPITable()" title="Filter by EHS / ENV source sheet">
+<option value="All">All Team</option>
+<option value="EHS">EHS</option>
+<option value="ENV">ENV</option>
+</select>
+<div class="flex-1"></div>
+<span class="text-[10px] font-black text-slate-400 bg-slate-50 px-3 py-2 rounded-lg border border-slate-100" id="kpi-filtered-count">0 records</span>
+<button class="h-10 px-3 flex items-center justify-center gap-2 bg-slate-50 text-slate-500 hover:bg-slate-700 hover:text-white rounded-xl shadow-sm border border-slate-200 transition-all text-[10px] font-black uppercase tracking-wider" onclick="kpiResetFilters()" title="Reset all filters">
+<i class="fas fa-rotate-left"></i><span class="hidden lg:inline">Reset</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 hover:bg-[#003DA5] hover:text-white rounded-xl shadow-sm border border-[#003DA5]/20 transition-all" onclick="fetchKPIData()" title="Refresh">
+<i class="fas fa-sync-alt"></i>
+</button>
+</div>
+<div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden relative">
+<div class="overflow-x-auto custom-scrollbar max-h-[600px]">
+<table class="w-full text-left border-collapse min-w-[1080px]">
+<thead class="sticky top-0 z-30 bg-white shadow-sm border-b border-slate-100">
+<tr class="bg-slate-50/90 backdrop-blur-md">
+<th class="p-4 w-[20%] text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Job Information</th>
+<th class="p-4 w-[10%] text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">CAL Date</th>
+<th class="p-4 w-[10%] text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Work Type</th>
+<th class="p-4 w-[9%] text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Total</th>
+<th class="p-4 w-[22%] text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-left">Progress Status</th>
+<th class="p-4 w-[14%] text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-left">Target Date</th>
+<th class="p-4 w-[16%] text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Timeline / KPI Result</th>
+</tr>
+</thead>
+<tbody class="text-xs text-slate-700 divide-y divide-slate-50 font-medium bg-white" id="kpi-table-body"></tbody>
+</table>
+</div>
+</div>
+</div><div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4 animate-fade-in" id="modal-kpi-update">
+<div class="bg-white rounded-3xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+<div class="p-6 border-b border-[#003DA5]/20 flex justify-between items-start bg-indigo-50/50">
+<div class="flex-1">
+<h3 class="font-extrabold text-indigo-900 text-lg flex items-center gap-2">
+<i class="fas fa-project-diagram text-indigo-500"></i> Workflow Details & Action
+                </h3>
+<div class="mt-3" id="upd-job-header"></div>
+<input id="upd-row-id" type="hidden"/>
+</div>
+<button class="w-10 h-10 flex items-center justify-center bg-white rounded-xl hover:text-red-600 shadow-sm border border-slate-200 transition-all ml-4" onclick="closeModal('modal-kpi-update')">
+<i class="fas fa-times"></i>
+</button>
+</div>
+<div class="px-8 py-3 bg-white border-b border-slate-100 flex flex-wrap justify-between items-center gap-2" id="modal-devices-container"></div>
+<div class="p-8 bg-slate-50 border-b border-slate-100 overflow-x-auto custom-scrollbar" id="modal-stepper-container"></div>
+<div class="p-6 bg-white flex-1 overflow-y-auto">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+<div>
+<label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Target Team Scope</label>
+<input class="w-full text-sm border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 font-bold text-slate-500 cursor-not-allowed" id="upd-target-col" readonly="" type="text"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Select Next Status (Strict Flow)</label>
+<select class="w-full text-sm border border-indigo-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-100 bg-white font-bold text-indigo-800 shadow-sm" id="upd-new-status"></select>
+</div>
+<div class="md:col-span-2 mt-2">
+<button class="w-full py-4 bg-[#003DA5] hover:bg-[#003DA5] text-white rounded-xl font-bold text-sm shadow-md shadow-[#003DA5]/10 transition-all active:scale-95 flex items-center justify-center gap-2" id="btn-save-kpi" onclick="saveJobStatus()">
+<i class="fas fa-save"></i> บันทึกการอัปเดตสถานะ (Save Status)
+                    </button>
+</div>
+</div>
+</div>
+</div>
+</div><div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4 animate-fade-in" id="modal-kpi-late">
+<div class="bg-white rounded-3xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+<div class="p-6 bg-blue-50 border-b border-[#003DA5] flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<h3 class="font-extrabold text-[#003DA5] text-lg flex items-center gap-2">
+<i class="fas fa-exclamation-circle"></i> Late KPI Notification
+                </h3>
+<button class="w-8 h-8 flex items-center justify-center bg-white rounded-lg text-[#003DA5] hover:text-[#003DA5] shadow-sm" onclick="closeModal('modal-kpi-late')">
+<i class="fas fa-times"></i>
+</button>
+</div>
+<div class="flex flex-wrap gap-2 items-center">
+<input class="flex-1 text-xs border border-[#003DA5] rounded-lg px-3 py-2 outline-none min-w-[150px]" id="late-search" onkeyup="renderLateJobsUI()" placeholder="Search Name/Job..." type="text"/>
+<select class="text-xs border border-[#003DA5] rounded-lg px-2 py-2 outline-none" id="late-f-year" onchange="renderLateJobsUI()">
+<option value="All">Year</option>
+<option value="2026">2026</option>
+</select>
+<select class="text-xs border border-[#003DA5] rounded-lg px-2 py-2 outline-none" id="late-f-month" onchange="renderLateJobsUI()">
+<option value="All">Month</option>
+<option value="01">Jan</option>
+<option value="02">Feb</option>
+<option value="03">Mar</option>
+<option value="04">Apr</option>
+<option value="05">May</option>
+<option value="06">Jun</option>
+<option value="07">Jul</option>
+<option value="08">Aug</option>
+<option value="09">Sep</option>
+<option value="10">Oct</option>
+<option value="11">Nov</option>
+<option value="12">Dec</option>
+</select>
+<select class="text-xs border border-[#003DA5] rounded-lg px-2 py-2 outline-none" id="late-f-sort" onchange="renderLateJobsUI()">
+<option value="desc">Late Most</option>
+<option value="asc">Late Least</option>
+</select>
+<button class="px-4 py-2 bg-[#003DA5] hover:bg-[#003DA5] text-white text-xs font-bold rounded-lg shadow-md flex items-center gap-2" id="btn-send-late-email" onclick="triggerLateEmail()">
+<i class="fas fa-paper-plane"></i> Notify Manager
+                </button>
+</div>
+</div>
+<div class="p-4 flex-1 overflow-y-auto custom-scrollbar bg-slate-50/50" id="late-jobs-container"></div>
+</div>
+</div>
+<!-- CES Stock Pro V6 — Stock_Dashboard_index.html | View ID: view-stock_dashboard -->
+<style id="stock-dashboard-v17-static-style">
+  #view-stock_dashboard.stockpro-page{font-family:'Prompt',Inter,Arial,sans-serif;color:#1e293b;}
+  #view-stock_dashboard .stockpro-shell{max-width:1280px;margin:0 auto;padding:0 0 24px;}
+  #view-stock_dashboard .stockpro-header-card{background:#fff;border:1px solid #e8eef6;border-radius:22px;padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 10px 28px rgba(30,58,138,.06);margin-bottom:18px;}
+  #view-stock_dashboard .stockpro-title-wrap{display:flex;align-items:center;gap:14px}
+  #view-stock_dashboard .stockpro-title-wrap h1{font-size:23px;font-weight:900;margin:0;color:#0f172a;letter-spacing:-.02em}
+  #view-stock_dashboard .stockpro-title-wrap p{font-size:11px;text-transform:uppercase;letter-spacing:.34em;color:#64748b;font-weight:800;margin:4px 0 0}
+  #view-stock_dashboard .stockpro-icon{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 10px 20px rgba(15,23,42,.08)}
+  #view-stock_dashboard .stockpro-icon.emerald{background:#047857}
+  #view-stock_dashboard .stockpro-actions{display:flex;gap:8px;align-items:center}
+  #view-stock_dashboard .sp-btn{border:0;border-radius:12px;font-weight:900;cursor:pointer;transition:.18s;display:inline-flex;gap:8px;align-items:center;justify-content:center}
+  #view-stock_dashboard .sd-icon-only{width:40px;height:40px;min-width:40px;padding:0;font-size:0}
+  #view-stock_dashboard .sd-icon-only i{font-size:15px}
+  #view-stock_dashboard .sp-btn.ghost{background:#fff;color:#0f172a;border:1px solid #dbe3ef}
+  #view-stock_dashboard .sp-btn.warn{background:#f59e0b;color:#fff}
+  #view-stock_dashboard .sp-btn.dark{background:#0f172a;color:#fff}
+  #view-stock_dashboard .sp-mini-badge{position:absolute;margin-left:22px;margin-top:-24px;min-width:20px;height:20px;border-radius:999px;background:#ef4444;color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid #fff;padding:0 4px}
+  #view-stock_dashboard .stockpro-model-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}
+  #view-stock_dashboard .stockpro-filter-card{background:#fff;border:1px solid #e8eef6;border-radius:18px;padding:12px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;margin-bottom:16px;box-shadow:0 4px 16px rgba(30,58,138,.05)}
+  #view-stock_dashboard .sp-search{position:relative}
+  #view-stock_dashboard .sp-search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8}
+  #view-stock_dashboard .stockpro-filter-card input,#view-stock_dashboard .stockpro-filter-card select{width:100%;border:1px solid #dbe3ef;border-radius:12px;background:#f8fbff;padding:10px 12px;font-size:13px;outline:none;color:#334155}
+  #view-stock_dashboard .stockpro-filter-card input{padding-left:36px}
+  #view-stock_dashboard .stockpro-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+  #view-stock_dashboard .stockpro-two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  #view-stock_dashboard .stockpro-card{background:#fff;border:1px solid #e8eef6;border-radius:18px;padding:16px;box-shadow:0 4px 16px rgba(30,58,138,.05);overflow:hidden}
+  #view-stock_dashboard .stockpro-card h3{font-size:15px;font-weight:900;color:#0f172a;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+  #view-stock_dashboard .stockpro-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+  #view-stock_dashboard .stockpro-chart-box{height:260px;position:relative}
+  @media(max-width:1100px){#view-stock_dashboard .stockpro-kpi-grid{grid-template-columns:repeat(2,1fr)}#view-stock_dashboard .stockpro-two-col,#view-stock_dashboard .stockpro-model-grid{grid-template-columns:1fr}#view-stock_dashboard .stockpro-filter-card{grid-template-columns:1fr}#view-stock_dashboard .stockpro-header-card{align-items:flex-start;flex-direction:column}}
+</style>
