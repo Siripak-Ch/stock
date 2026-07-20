@@ -1,1 +1,89 @@
-<section class="hidden stockpro-page" id="view-stock_dashboard"><div class="cs20-page"><div class="cs20-header"><div class="cs20-title"><div class="cs20-title-icon"><i class="fas fa-chart-pie"></i></div><div><h1>Infusion Pump Dashboard</h1><p>Stock Performance Tracking</p></div></div><div class="cs20-actions"><button class="cs20-btn ghost" onclick="stock20ExportDashboard()"><i class="fas fa-file-excel"></i> Export</button><button class="cs20-btn primary" onclick="initStockDashboardModule(true)"><i class="fas fa-rotate"></i> Refresh</button></div></div><div class="cs20-filterbar"><div class="cs20-search"><i class="fas fa-search"></i><input id="cs20DashSearch" placeholder="Search ID / Serial Number" oninput="stock20RenderDashboard()"></div><select id="cs20DashBrand" onchange="stock20SyncModels('Dash');stock20RenderDashboard()"><option value="all">All Brand</option></select><select id="cs20DashModel" onchange="stock20RenderDashboard()"><option value="all">All Model</option></select><select id="cs20DashStatus" onchange="stock20RenderDashboard()"><option value="all">All Status</option></select><select id="cs20DashLocation" onchange="stock20RenderDashboard()"><option value="all">All Location</option></select></div><div id="cs20DashLoading" class="cs20-loading"><span></span> Loading Stock Inventory...</div><div id="cs20DashContent" class="hidden"><div id="cs20KpiGrid" class="cs20-kpi-grid"></div><div id="cs20ModelCards" class="cs20-model-grid"></div><div class="cs20-chart-grid three"><div class="cs20-card"><div class="cs20-card-head"><h3>Status Share</h3></div><div class="cs20-chart-box"><canvas id="cs20StatusChart"></canvas></div><div id="cs20StatusLegend" class="cs20-legend"></div></div><div class="cs20-card"><div class="cs20-card-head"><h3>Model × Status</h3></div><div class="cs20-chart-box"><canvas id="cs20ModelChart"></canvas></div></div><div class="cs20-card"><div class="cs20-card-head"><h3>Brand Share</h3></div><div class="cs20-chart-box"><canvas id="cs20BrandChart"></canvas></div></div></div><div class="cs20-card"><div class="cs20-card-head"><h3>Top Location</h3><span id="cs20LocationCount" class="cs20-pill">0 locations</span></div><div id="cs20TopLocationTable" class="cs20-table-wrap"></div></div></div></div></section>
+<section class="hidden stockpro-page" id="view-stock_dashboard">
+<div class="stockpro-shell">
+<div class="stockpro-header-card">
+<div class="stockpro-title-wrap">
+<div class="stockpro-icon ces-view-icon"><i class="fas fa-chart-pie"></i></div>
+<div>
+<h1>Stock Dashboard</h1>
+<p>CES Inventory Overview</p>
+</div>
+</div>
+<div class="stockpro-actions">
+<button class="sp-btn ghost sd-icon-only" onclick="initStockDashboardModule(true)" title="Refresh / Resync"><i class="fas fa-sync-alt"></i></button>
+<button class="sp-btn warn sd-icon-only" onclick="sd_openAlertPopup()" title="Alerts"><i class="fas fa-bell"></i><span class="sp-mini-badge" id="sdAlertHeaderCount">0</span></button>
+<button class="sp-btn dark sd-icon-only" onclick="sd_exportSummary()" title="Export Summary"><i class="fas fa-file-excel"></i></button>
+</div>
+</div>
+<div class="stockpro-model-grid" id="sdModelCards"></div>
+<div class="stockpro-filter-card">
+<div class="sp-search">
+<i class="fas fa-search"></i>
+<input id="sdSearch" oninput="sd_renderFiltered()" placeholder="ค้นหา ID, SN, ผู้ยืม, สถานที่..."/>
+</div>
+<select id="sdBrand" onchange="sd_renderFiltered()"><option value="all">แบรนด์ทั้งหมด</option></select>
+<select id="sdModel" onchange="sd_renderFiltered()"><option value="all">โมเดลทั้งหมด</option></select>
+<select id="sdStatus" onchange="sd_renderFiltered()"><option value="all">สถานะทั้งหมด</option></select>
+</div>
+<div class="stockpro-kpi-grid" id="sdKpiGrid"></div>
+<div class="stockpro-two-col">
+<div class="stockpro-card">
+<h3><i class="fas fa-chart-pie text-indigo-500"></i> สัดส่วนสถานะอุปกรณ์</h3>
+<div class="stockpro-chart-box"><canvas id="sdStatusChart"></canvas></div>
+</div>
+<div class="stockpro-card">
+<h3><i class="fas fa-chart-bar text-[#003DA5]"></i> อุปกรณ์ถูกยืมรายเดือน</h3>
+<div class="stockpro-chart-box"><canvas id="sdRentalChart"></canvas></div>
+</div>
+</div>
+<div class="stockpro-card">
+<div class="stockpro-card-head">
+<h3><i class="fas fa-file-contract text-blue-500"></i> รายการสัญญา / Rental Contract Summary</h3>
+<span class="sp-pill" id="sdContractCount">0 locations</span>
+</div>
+<div class="stockpro-filter-card sp-contract-filter-card" style="grid-template-columns:1fr 1fr auto;margin-bottom:12px;box-shadow:none;">
+<select id="sdContractFilter" onchange="sd_renderContractSummary()">
+<option value="all">ทุกสัญญา</option>
+<option value="overdue">หมดสัญญา / Overdue</option>
+<option value="active">กำลังใช้งาน</option>
+<option value="completed">เรียบร้อยแล้ว / Completed</option>
+</select>
+<select id="sdContractSort" onchange="sd_renderContractSummary()">
+<option value="risk">Sort: Risk first</option>
+<option value="location">Sort: Location A-Z</option>
+<option value="due_asc">Sort: Due date ↑</option>
+<option value="due_desc">Sort: Due date ↓</option>
+</select>
+<button class="sp-btn ghost" onclick="sd_v11ResetContractFilter()"><i class="fas fa-rotate-left"></i> Reset Filter</button>
+</div>
+<div id="sdContractTable"></div>
+</div>
+<div class="stockpro-two-col">
+<div class="stockpro-card">
+<h3><i class="fas fa-layer-group text-blue-500"></i> Summary by Model / Brand / Status</h3>
+<div id="sdSummaryTable"></div>
+</div>
+<div class="stockpro-card">
+<h3><i class="fas fa-map-marker-alt text-[#003DA5]"></i> Summary by Location</h3>
+<div id="sdLocationTable"></div>
+</div>
+</div>
+<div class="stockpro-card" style="display:none">
+<div class="stockpro-card-head">
+<h3><i class="fas fa-bell text-[#5B7F95]"></i> Alert List</h3>
+<span class="sp-pill" id="sdAlertCount">0 alerts</span>
+</div>
+<div id="sdAlertTable"></div>
+</div>
+</div>
+</section>
+<!-- CES Stock Pro V6 — Stock_Inventory_index.html | View ID: view-inventory -->
+<style id="stock-inventory-v17-static-style">
+  #view-inventory .hidden{display:none!important}
+  #view-inventory .sp-cart-fab,#siCartFab{position:fixed!important;right:24px!important;left:auto!important;bottom:24px!important;top:auto!important;width:58px!important;height:58px!important;border-radius:999px!important;background:#2563eb!important;color:#fff!important;z-index:9999!important;box-shadow:0 18px 38px rgba(37,99,235,.35)!important;display:flex!important;align-items:center!important;justify-content:center!important;border:0!important}
+  #view-inventory #siCartFabBadge{position:absolute!important;top:-7px!important;right:-7px!important;min-width:22px!important;height:22px!important;border-radius:999px!important;background:#ef4444!important;color:#fff!important;font-size:11px!important;font-weight:900!important;border:2px solid #fff!important;display:flex;align-items:center;justify-content:center}
+  #view-inventory .si-icon-only{width:38px!important;height:38px!important;min-width:38px!important;padding:0!important;font-size:0!important;border-radius:12px!important;position:relative!important}
+  #view-inventory .si-icon-only i{font-size:14px!important}
+  #view-inventory .sp-table td{padding:10px 12px!important;font-size:12px!important;vertical-align:middle!important}
+  #view-inventory .sp-table th{padding:10px 12px!important}
+  #view-inventory .sp-icon-btn{width:30px!important;height:30px!important;border-radius:9px!important;font-size:12px!important}
+</style>

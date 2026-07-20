@@ -219,7 +219,7 @@
 
     // Inventory module calls are small but write-like names normally force hidden iframe POST.
     // On GitHub Pages / LIFF, iframe POST can hang; use JSONP when URL length is safe.
-    if (/^(si_(checkoutCart|submitMixedCheckout|editEquipment|markEquipmentBroken|deleteEquipment|extendRental|returnEquipment|restockAccessory|issueAccessory|adjustAccessory|updateAccessoryMinStock|updateAccessoryMinStockBatch|updateAccessoryCheckResult|updateAccessoryCheckResultBatch|approveAccessoryRequestFromWeb|rejectAccessoryRequestFromWeb)|sd_(cfCalPmStock|checkoutStock|returnStock|markStockBroken|markStockMissing|recoverStock|updateDeviceStatus))$/i.test(String(fnName || '')) && testUrl.length <= JSONP_URL_LIMIT) {
+    if (/^si_(checkoutCart|submitMixedCheckout|editEquipment|markEquipmentBroken|deleteEquipment|extendRental|returnEquipment|restockAccessory|issueAccessory|adjustAccessory|updateAccessoryMinStock|updateAccessoryMinStockBatch|updateAccessoryCheckResult|updateAccessoryCheckResultBatch|approveAccessoryRequestFromWeb|rejectAccessoryRequestFromWeb)$/i.test(String(fnName || '')) && testUrl.length <= JSONP_URL_LIMIT) {
       return false;
     }
 

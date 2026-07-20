@@ -1,1 +1,103 @@
-<section class="hidden stockpro-page" id="view-inventory"><div class="cs20-page"><div class="cs20-header"><div class="cs20-title"><div class="cs20-title-icon cyan"><i class="fas fa-boxes-stacked"></i></div><div><h1>Equipment Dashboard</h1><p>Infusion Pump Inventory · Table, Filter and Action</p></div></div><div class="cs20-actions"><button class="cs20-btn ghost" onclick="stock20ExportInventoryCsv()"><i class="fas fa-file-csv"></i> CSV</button><button class="cs20-btn ghost" onclick="stock20PrintInventory()"><i class="fas fa-file-pdf"></i> PDF / Print</button><button class="cs20-btn primary" onclick="initStockInventoryModule(true)"><i class="fas fa-rotate"></i> Refresh</button></div></div><div class="cs20-filterbar"><div class="cs20-search"><i class="fas fa-search"></i><input id="cs20InvSearch" placeholder="Search ID / SN / Brand / Model / Location" oninput="stock20InventoryFilterChanged()"></div><select id="cs20InvBrand" onchange="stock20SyncModels('Inv');stock20InventoryFilterChanged()"><option value="all">All Brand</option></select><select id="cs20InvModel" onchange="stock20InventoryFilterChanged()"><option value="all">All Model</option></select><select id="cs20InvStatus" onchange="stock20InventoryFilterChanged()"><option value="all">All Status</option></select><select id="cs20InvLocation" onchange="stock20InventoryFilterChanged()"><option value="all">All Location</option></select></div><div id="cs20InvLoading" class="cs20-loading"><span></span> Loading Equipment...</div><div id="cs20InvContent" class="hidden"><div id="cs20InvKpiGrid" class="cs20-kpi-grid"></div><div class="cs20-card"><div class="cs20-card-head"><h3>Equipment List</h3><span id="cs20InvCount" class="cs20-pill">0 records</span></div><div id="cs20InventoryTable" class="cs20-table-wrap"></div><div class="cs20-pagination"><span id="cs20PageInfo"></span><div><button onclick="stock20ChangePage(-1)"><i class="fas fa-chevron-left"></i></button><button onclick="stock20ChangePage(1)"><i class="fas fa-chevron-right"></i></button></div></div></div></div></div></section>
+<!-- ============================================================
+     CES Stock Pro V6 — Stock_Inventory_index.html
+     View ID: view-inventory
+============================================================ -->
+
+<style id="stock-inventory-v17-static-style">
+  #view-inventory .hidden{display:none!important}
+  #view-inventory .sp-cart-fab,#siCartFab{position:fixed!important;right:24px!important;left:auto!important;bottom:24px!important;top:auto!important;width:58px!important;height:58px!important;border-radius:999px!important;background:#2563eb!important;color:#fff!important;z-index:9999!important;box-shadow:0 18px 38px rgba(37,99,235,.35)!important;display:flex!important;align-items:center!important;justify-content:center!important;border:0!important}
+  #view-inventory #siCartFabBadge{position:absolute!important;top:-7px!important;right:-7px!important;min-width:22px!important;height:22px!important;border-radius:999px!important;background:#ef4444!important;color:#fff!important;font-size:11px!important;font-weight:900!important;border:2px solid #fff!important;display:flex;align-items:center;justify-content:center}
+  #view-inventory .si-icon-only{width:38px!important;height:38px!important;min-width:38px!important;padding:0!important;font-size:0!important;border-radius:12px!important;position:relative!important}
+  #view-inventory .si-icon-only i{font-size:14px!important}
+  #view-inventory .sp-table td{padding:10px 12px!important;font-size:12px!important;vertical-align:middle!important}
+  #view-inventory .sp-table th{padding:10px 12px!important}
+  #view-inventory .sp-icon-btn{width:30px!important;height:30px!important;border-radius:9px!important;font-size:12px!important}
+</style>
+
+<section id="view-inventory" class="hidden stockpro-page">
+  <div class="stockpro-shell">
+
+    <div class="stockpro-header-card">
+      <div class="stockpro-title-wrap">
+        <div class="stockpro-icon ces-view-icon"><i class="fas fa-boxes-stacked"></i></div>
+        <div>
+          <h1>Inventory</h1>
+          <p>Device List + Checkout Cart + Accessories</p>
+        </div>
+      </div>
+      <div class="stockpro-actions si-header-actions-v14">
+        <button class="sp-btn ghost si-icon-only" onclick="initStockInventoryModule(true)" title="Refresh" aria-label="Refresh"><i class="fas fa-sync-alt"></i></button>
+        <button class="sp-btn ghost si-icon-only" onclick="si_openMinStockConfig()" title="Min Stock Setting" aria-label="Min Stock Setting"><i class="fas fa-sliders"></i></button>
+        <button class="sp-btn ghost si-icon-only" onclick="si_openInventoryHistory()" title="History for current tab" aria-label="History for current tab"><i class="fas fa-history"></i></button>
+        <button class="sp-btn warn si-icon-only" onclick="si_openAccessoryLowStockAlerts()" title="Low Stock Alert" aria-label="Low Stock Alert"><i class="fas fa-bell"></i><span id="siLowStockHeaderCount">0</span></button>
+        <button class="sp-btn primary si-icon-only" onclick="si_toggleCart()" title="Checkout Cart" aria-label="Checkout Cart"><i class="fas fa-shopping-cart"></i><span id="siCartCount">0</span></button>
+        <button class="sp-btn dark si-icon-only" onclick="si_exportCurrent()" title="Export" aria-label="Export"><i class="fas fa-file-excel"></i></button>
+      </div>
+    </div>
+
+    <div class="sp-tabs">
+      <button id="siTabEquip" class="sp-tab active" onclick="si_switchTab('equip')"><i class="fas fa-microchip"></i> Equipment</button>
+      <button id="siTabAcc" class="sp-tab" onclick="si_switchTab('acc')"><i class="fas fa-plug"></i> Accessories</button>
+    </div>
+
+    <div class="stockpro-filter-card" id="siEquipFilters">
+      <div class="sp-search"><i class="fas fa-search"></i><input id="siSearch" oninput="si_applyFilters()" placeholder="ค้นหา ID / SN / Brand / Model / Location"></div>
+      <select id="siBrand" onchange="si_applyFilters()"><option value="all">All Brand</option></select>
+      <select id="siModel" onchange="si_applyFilters()"><option value="all">All Model</option></select>
+      <select id="siLocation" onchange="si_applyFilters()"><option value="all">All Location</option></select>
+      <select id="siStatus" onchange="si_applyFilters()"><option value="all">All Status</option></select>
+    </div>
+
+    <div class="stockpro-filter-card hidden" id="siAccFilters">
+      <div class="sp-search"><i class="fas fa-search"></i><input id="siAccSearch" oninput="si_applyFilters()" placeholder="ค้นหา accessories"></div>
+      <select id="siAccTeam" onchange="si_applyFilters()"><option value="all">All Team</option></select>
+      <select id="siAccItem" onchange="si_applyFilters()"><option value="all">All Item</option></select>
+      <select id="siAccStatus" onchange="si_applyFilters()"><option value="all">All Status</option><option value="STOCK">STOCK</option><option value="LOW_STOCK">LOW_STOCK</option><option value="PENDING_APPROVAL">PENDING_APPROVAL</option></select>
+      <select id="siAccAction" onchange="si_applyFilters()"><option value="all">All Action</option></select>
+    </div>
+
+    <div id="siEquipKpiGrid" class="stockpro-kpi-grid"></div>
+    <div id="siAccKpiGrid" class="stockpro-kpi-grid hidden"></div>
+
+    <div class="stockpro-card" id="siEquipSection">
+      <div class="stockpro-card-head">
+        <h3><i class="fas fa-microchip text-blue-500"></i> Equipment List — 50 rows per page</h3>
+        <span id="siTableCount" class="sp-pill">0 items</span>
+      </div>
+      <div id="siTable"></div>
+      <div id="siPagination" class="sp-pagination"></div>
+    </div>
+
+    <div class="stockpro-card hidden" id="siAccSection">
+      <div class="stockpro-card-head">
+        <h3><i class="fas fa-plug text-[#003DA5]"></i> Accessories Inventory</h3>
+        <span id="siAccCount" class="sp-pill">0 items</span>
+      </div>
+      <div id="siAccCards"></div>
+      <div id="siAccPagination" class="sp-pagination"></div>
+    </div>
+
+  </div>
+
+  <button id="siCartFab" class="sp-cart-fab" onclick="si_toggleCart()" title="Checkout Cart" style="position:fixed!important;right:24px!important;left:auto!important;bottom:24px!important;top:auto!important;z-index:9999!important;">
+    <i class="fas fa-shopping-cart"></i>
+    <span id="siCartFabBadge">0</span>
+  </button>
+
+  <div id="siCartOverlay" class="hidden fixed inset-0 bg-slate-900/40 z-[180]" onclick="si_closeCart()"></div>
+  <div id="siCartDrawer" class="fixed top-0 right-[-520px] w-[min(520px,100vw)] h-screen bg-white z-[181] shadow-2xl transition-all duration-300 flex flex-col">
+    <div class="bg-[#2563eb] text-white p-5 flex justify-between items-center">
+      <div><h2 class="font-black text-xl"><i class="fas fa-shopping-cart"></i> ตะกร้า Check-Out</h2><p class="text-xs text-blue-100"><span id="siCartDrawerCount">0</span> รายการ</p></div>
+      <button onclick="si_closeCart()" class="text-white/80 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+    </div>
+    <div id="siCartItems" class="flex-1 overflow-y-auto p-4"></div>
+    <div id="siCartDetailSummary" class="px-4 pb-3"></div>
+    <div class="border-t border-slate-100 p-4 space-y-3">
+      <input id="siBorrower" class="stockpro-control" placeholder="ชื่อผู้ยืม / Borrower *">
+      <input id="siCheckoutLocation" class="stockpro-control" placeholder="สถานที่ / Location *">
+      <div class="grid grid-cols-2 gap-2"><input id="siBorrowDate" class="stockpro-control" type="date" title="วันที่เบิกออก / Issue date"><input id="siDueDate" class="stockpro-control" type="date" title="วันคืน เฉพาะ Equipment / Return date for Equipment"></div>
+      <input id="siNote" class="stockpro-control" placeholder="หมายเหตุ">
+      <button class="sp-btn danger w-full" style="width:100%" onclick="si_submitCheckout()"><i class="fas fa-paper-plane"></i> ยืนยัน Check-Out</button>
+    </div>
+  </div>
+</section>
