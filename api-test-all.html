@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CES Hub API Test All</title>
+  <style>
+    body{font-family:Arial,'Prompt',sans-serif;background:#f8fafc;color:#0f172a;margin:0;padding:28px}
+    .card{max-width:1120px;margin:auto;background:#fff;border:1px solid #e2e8f0;border-radius:22px;padding:24px;box-shadow:0 20px 50px rgba(15,23,42,.08)}
+    h1{margin:0 0 6px;font-size:26px}.muted{color:#64748b;font-size:13px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:18px 0}
+    button{border:0;border-radius:12px;padding:12px 14px;background:#2563eb;color:#fff;font-weight:900;cursor:pointer}button.dark{background:#0f172a}button.green{background:#059669}button.orange{background:#d97706}
+    input{border:1px solid #cbd5e1;border-radius:12px;padding:12px 14px;margin-right:8px}pre{background:#0f172a;color:#e2e8f0;border-radius:16px;padding:16px;overflow:auto;min-height:360px;font-size:12px;line-height:1.45}.ok{color:#059669}.bad{color:#dc2626}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>CES Hub API Test All</h1>
+    <div class="muted">ทดสอบ GitHub Frontend → Apps Script API และตรวจ Sheet ID: Main / KPI / Stock</div>
+    <p><input id="emp" value="51032" placeholder="Employee ID"><button class="green" onclick="runCore()">Run Core</button> <button onclick="runReads()">Run Read Modules</button> <button class="orange" onclick="runStock()">Run Stock</button> <button class="dark" onclick="runAll()">Run All</button></p>
+    <div class="grid">
+      <button onclick="test('health')">Health / Sheet IDs</button>
+      <button onclick="testLogin()">Login</button>
+      <button onclick="callFn('getAllData', [])">getAllData</button>
+      <button onclick="callFn('getCheckinDashboardData', [])">Check-in</button>
+      <button onclick="callFn('getWeeklyInitialData', [])">Weekly Config</button>
+      <button onclick="callFn('getKPIDashboardData', ['EHS'])">KPI EHS</button>
+      <button onclick="callFn('getRevenueDashboardData', [new Date().getFullYear()])">Revenue</button>
+      <button onclick="callFn('getOTDashboardData', [])">OT</button>
+      <button onclick="callFn('getServiceDataOnly', [])">Service CSI</button>
+      <button onclick="callFn('getReportDataOnly', [])">Report CSI</button>
+      <button onclick="callFn('sd_getStockDashboardData', [true])">Stock Dashboard</button>
+      <button onclick="callFn('si_getStockInventoryData', [true])">Inventory</button>
+      <button onclick="callFn('sc_getScanLogs', [20])">Check Stock Logs</button>
+      <button onclick="callFn('getSystemSettings', [])">Setting</button>
+    </div>
+    <pre id="out">Ready...</pre>
+  </div>
+  <script src="js/config.js"></script>
+  <script src="js/gas-polyfill.js"></script>
+  <script>
+    const out = document.getElementById('out');
+    function show(title, data){ out.textContent = title + '\n\n' + JSON.stringify(data, null, 2); }
+    function short(data){
+      if(!data) return data;
+      const s = JSON.parse(JSON.stringify(data));
+      ['calSummary','inventory','devices','accessories','records','data','service','report','tickets','logs','jobs'].forEach(k=>{ if(Array.isArray(s[k])) s[k] = {length:s[k].length, sample:s[k].slice(0,2)}; });
+      if(s.result) return short(s.result);
+      return s;
+    }
+    async function test(name){ try{ const r=await CES_API.health(); show('✅ Health OK', r); }catch(e){ show('❌ Health FAIL', e); } }
+    async function testLogin(){ const id=document.getElementById('emp').value||'51032'; try{ const r=await CES_API.login(id); show('✅ Login OK', short(r)); }catch(e){ show('❌ Login FAIL', e); } }
+    async function callFn(fn,args){ try{ const r=await CES_API.callFunction(fn,args||[]); show('✅ '+fn+' OK', short(r)); }catch(e){ show('❌ '+fn+' FAIL', e); } }
+    async function collect(fn,args){ try{ const r=await CES_API.callFunction(fn,args||[]); return {success:true, data: short(r)}; }catch(e){ return {success:false, error:e}; } }
+    async function runCore(){
+      const emp=document.getElementById('emp').value||'51032';
+      const res={};
+      try{res.health=await CES_API.health();}catch(e){res.health=e;}
+      try{res.login=await CES_API.login(emp);}catch(e){res.login=e;}
+      res.getAllData=await collect('getAllData', []);
+      show('Core Result', short(res));
+    }
+    async function runReads(){
+      const res={
+        checkin: await collect('getCheckinDashboardData', []),
+        weekly: await collect('getWeeklyInitialData', []),
+        kpi: await collect('getKPIDashboardData', ['EHS']),
+        revenue: await collect('getRevenueDashboardData', [new Date().getFullYear()]),
+        ot: await collect('getOTDashboardData', []),
+        service: await collect('getServiceDataOnly', []),
+        report: await collect('getReportDataOnly', []),
+        setting: await collect('getSystemSettings', [])
+      };
+      show('Read Modules Result', res);
+    }
+    async function runStock(){
+      const res={
+        stockDashboard: await collect('sd_getStockDashboardData', [true]),
+        inventory: await collect('si_getStockInventoryData', [true]),
+        scanLogs: await collect('sc_getScanLogs', [20]),
+        accessoryOptions: await collect('sc_getAccessoryLookupOptions', [])
+      };
+      show('Stock Result', res);
+    }
+    async function runAll(){ await runCore(); const core=out.textContent; await runReads(); const reads=out.textContent; await runStock(); show('Run All Finished', {core, reads, stock: out.textContent}); }
+  </script>
+</body>
+</html>

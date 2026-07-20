@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+
+
+
+
+<html lang="th">
+
+
+
+
+<head>
+    <link rel="icon" href="img/favicon.png" type="image/png">
+
+
+
+
+    <meta charset="UTF-8">
+
+
+
+
+    <base target="_top">
+
+
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+
+    <title>CES Hub</title>
+
+
+
+
+
+
+
+
+
+    <!-- Preconnect for faster external resource loading -->
+
+
+
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+
+
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+
+
+
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+
+
+
+
+
+
+
+
+    <!-- CSS: Non-blocking, loads in parallel -->
+
+
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap">
+
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+
+
+
+    <link rel="stylesheet" href="css/app.css">
+
+
+
+    <script>
+
+
+
+      // Load Google Font Prompt dynamically
+
+
+
+      (function(){var l=document.createElement('link');l.rel='stylesheet';
+
+
+
+      l.href='https:'+'//fonts.googleapi'+'s.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap';
+
+
+
+      document.head.appendChild(l);})();
+
+
+
+    </script>
+
+
+
+
+
+
+
+
+
+    <!-- Essential JS: Must load before page interaction -->
+
+
+
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+
+
+
+    <script src="js/config.js"></script>
+
+
+
+
+    <script src="js/gas-polyfill.js"></script>
+
+
+
+
+    <script defer src="js/core/session-cache.js"></script>
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+
+
+
+
+
+
+
+    <!-- Deferred JS: Loads in background, available before modules run -->
+
+
+
+
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+
+
+    <script defer src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+
+
+
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+
+
+
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+
+
+
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+
+
+
+    <script defer src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+
+
+
+
+    <script defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+
+
+
+    <script defer src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+
+
+
+
+
+
+
+
+    <!-- Lazy: Loaded on-demand by specific modules only -->
+
+
+
+
+    <!-- tesseract.js, html2canvas, jspdf, LIFF SDK -->
+
+
+
+
+</head>
+
+
+
+
+<body>
+
+
+
+
+    <noscript>กรุณาเปิดใช้งาน JavaScript เพื่อใช้งาน CES Hub</noscript>
+
+
+
+
+    <div id="ces-boot-error" class="hidden"></div>
+
+
+
+
+
+
+
+
+
+    <!-- Loading splash (instant visual feedback) -->
+
+
+
+
+    <div id="ces-splash" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#f8fafc;z-index:9999;">
+
+
+
+
+        <div style="text-align:center;">
+
+
+
+
+            <div style="width:40px;height:40px;border:3px solid #e2e8f0;border-top-color:#003DA5;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;"></div>
+
+
+
+
+            <div style="font-family:Prompt,sans-serif;color:#003DA5;font-weight:600;">CES Hub</div>
+
+
+
+
+            <div style="font-family:Prompt,sans-serif;color:#94a3b8;font-size:12px;margin-top:4px;">Loading...</div>
+
+
+
+
+        </div>
+
+
+
+
+    </div>
+
+
+
+
+    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+
+
+
+
+
+
+
+
+
+    <script src="js/core/include-loader.js"></script>
+
+
+
+
+    <script>
+
+
+
+
+      window.CES_BUILD_HASH = '20260720-infusion-stock-inventory-final';
+
+
+
+
+
+
+
+
+
+      // On-demand library loader for rarely-used heavy libs
+
+
+
+
+      window.CES_loadLib = function(url) {
+
+
+
+
+        return new Promise(function(resolve, reject) {
+
+
+
+
+          if (document.querySelector('script[src="' + url + '"]')) { resolve(); return; }
+
+
+
+
+          var s = document.createElement('script');
+
+
+
+
+          s.src = url; s.onload = resolve; s.onerror = reject;
+
+
+
+
+          document.head.appendChild(s);
+
+
+
+
+        });
+
+
+
+
+      };
+
+
+
+
+      window.CES_LIBS = {
+
+
+
+
+        tesseract: 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js',
+
+
+
+
+        liff: 'https://static.line-scdn.net/liff/edge/2/sdk.js',
+
+
+
+
+        html2canvas: 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+
+
+
+
+        jspdf: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
+
+
+
+
+      };
+
+
+
+
+
+
+
+
+
+      // Hide splash when app is ready
+
+
+
+
+      window.CES_hideSplash = function() {
+
+
+
+
+        var splash = document.getElementById('ces-splash');
+
+
+
+
+        if (splash) { splash.style.opacity='0'; splash.style.transition='opacity 0.3s'; setTimeout(function(){splash.style.display='none';},300); }
+
+
+
+
+      };
+
+
+
+
+
+
+
+
+
+      CESBoot.loadHtml([
+
+
+
+
+        { "target": "body", "url": "views/00-login.html" },
+
+
+
+
+        { "target": "body", "url": "views/01-shell.html" },
+
+
+
+
+        { "target": "body", "url": "views/98-global-modals.html" },
+
+
+
+
+        { "target": "#app-main-content", "url": "views/home.html" },
+
+
+
+
+        { "target": "#app-main-content", "url": "views/service.html" },
+
+
+
+
+        { "target": "#app-main-content", "url": "views/report.html" },
+
+
+
+
+        { "target": "#app-main-content", "url": "views/yearly.html" },
+
+
+
+
+        { "target": "#app-main-content", "url": "views/revenue.html" },
+
+
+
+
+        { "target": "#app-main-content", "url": "views/calendar.html" },
+
+
+
+
+        { "target": "#app-main-content", "url": "views/checkin.html" },
+
+
+
+
+        { "target": "#app-main-content", "url": "views/report_manage.html" },
+
+
+
+
+        { "target": "#app-main-content", "url": "views/weekly.html" },
+
+
+
+
+        { "target": "#app-main-content", "url": "views/ot.html" },
+
+
+
+
+        { "target": "#app-main-content", "url": "views/users.html" },
+
+
+
+
+        { "target": "#app-main-content", "url": "views/setting.html" },
+
+
+
+
+        { "target": "#app-main-content", "url": "views/kpi.html" },
+
+
+
+
+        { "target": "#app-main-content", "url": "views/stock_dashboard.html" },
+
+
+
+
+        { "target": "#app-main-content", "url": "views/inventory.html" },
+
+
+
+
+        { "target": "#app-main-content", "url": "views/check_stock.html" }
+
+
+
+
+      ]);
+
+
+
+
+
+
+
+
+
+      CESBoot.loadScripts([
+
+
+
+        "js/modules/000-core-global-helpers.js",
+
+
+
+
+        "js/modules/00-auth-login.js",
+
+
+
+
+        "js/modules/10-home-dashboard.js",
+
+
+
+
+        "js/modules/20-service-csi.js",
+
+
+
+
+        "js/modules/30-report-csi.js",
+
+
+
+
+        "js/modules/40-yearly-dashboard.js",
+
+
+
+
+        "js/modules/50-revenue-dashboard.js",
+
+
+
+
+        "js/modules/60-calendar-master.js",
+
+
+
+
+        "js/modules/70-checkin.js",
+
+
+
+
+        "js/modules/80-report-management.js",
+
+
+
+
+        "js/modules/90-weekly-report.js",
+
+
+
+
+        "js/modules/100-ot-dashboard.js",
+
+
+
+
+        "js/modules/110-users-management.js",
+
+
+
+
+        "js/modules/120-settings.js",
+
+
+
+
+        "js/modules/130-kpi-dashboard.js",
+
+
+
+
+        "js/modules/140-stock-dashboard.js",
+
+
+
+
+        "js/modules/150-stock-inventory.js",
+
+
+
+
+        "js/modules/160-stock-check.js",
+
+
+
+
+        "js/modules/900-app-controller.js",
+
+
+
+
+        "js/modules/990-service-csi-index-fix-v18.js",
+
+
+
+
+        "js/modules/995-ui-theme-normalizer.js",
+
+
+
+
+        "js/modules/9999-final-frontend-fix.js",
+
+
+
+        "js/modules/99999-kpi-env-sync-final.js",
+
+
+
+        "js/modules/999999-final-dashboard-csi-calendar-sync-20260709.js",
+
+        "js/modules/9999999-stock-inventory-v20260720.js"
+
+
+
+
+      ]);
+
+
+
+
+
+
+
+
+
+      // Hide splash after all modules loaded
+
+
+
+
+      CES_hideSplash();
+
+
+
+
+    </script>
+
+
+
+
+</body>
+
+
+
+
+</html>

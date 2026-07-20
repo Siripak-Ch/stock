@@ -1,0 +1,327 @@
+// ============================================================
+// 160-stock-check.js
+// Extracted from original index.html. Keep load order from index.html.
+// ============================================================
+
+/* ============================================================
+   CES Stock Pro V3 — Stock_Check_java.html
+============================================================ */
+let SC = { mode:'CHECK-IN', logs:[] };
+
+function initStockCheckModule(force=false){
+  spEnsureStyle();
+  sc_loadLogs();
+}
+function sc_setMode(mode){
+  SC.mode=mode;
+  document.getElementById('scModeIn')?.classList.toggle('active',mode==='CHECK-IN');
+  document.getElementById('scModeIn')?.classList.toggle('in',mode==='CHECK-IN');
+  document.getElementById('scModeOut')?.classList.toggle('active',mode==='CHECK-OUT');
+  document.getElementById('scModeOut')?.classList.toggle('out',mode==='CHECK-OUT');
+  const txt=document.getElementById('scModeText');
+  if(txt){txt.style.color=mode==='CHECK-IN'?'#003DA5':'#19a7ce';txt.innerHTML=mode==='CHECK-IN'?'● โหมด: รับเข้าคลัง (→ รอสอบเทียบ)':'● โหมด: ส่งออกเช่ายืม (→ เช่ายืม)';}
+}
+function sc_lookup(){
+  const q=spVal('scKeyword','').trim();
+  if(!q){Swal.fire('กรุณากรอกรหัส','','info');return;}
+  spSetHtml('scResult','<div class="stockpro-card"><div class="sp-muted">กำลังค้นหา...</div></div>');
+  google.script.run.withSuccessHandler(res=>{
+    if(!res||!res.success){Swal.fire('Check Stock Error',(res&&res.message)||'Lookup failed','error');return;}
+    sc_renderResult(res.data||[]);
+    sc_loadLogs();
+  }).withFailureHandler(err=>Swal.fire('Check Stock Error',err.message||String(err),'error')).sc_lookupStockDevice(q);
+}
+function sc_renderResult(rows){
+  if(!rows.length){spSetHtml('scResult','<div class="stockpro-card"><h3>ไม่พบข้อมูล</h3><div class="sp-muted">ลองตรวจสอบ ID / SN อีกครั้ง</div></div>');return;}
+  spSetHtml('scResult',rows.map(d=>`<div class="stockpro-card">
+    <div class="stockpro-card-head"><h3>${spEsc(d.idCode)} ${spBadge(d.status)}</h3><span class="sp-pill">${spEsc(d.brand||'-')}</span></div>
+    <div class="sp-result-grid">
+      ${sc_field('Serial Number',d.sn)}
+      ${sc_field('Model',d.model||d.itemName)}
+      ${sc_field('Location',d.location)}
+      ${sc_field('Borrower',d.borrower||'-')}
+      ${sc_field('Due Date',spFmtDate(d.expectedReturn||d.expectedReturnDate))}
+      ${sc_field('Action Required',d.actionRequired||d.recheckNote||'-')}
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+      <button class="sp-btn success" onclick="sc_record('${spEsc(d.idCode)}','CHECK-IN')"><i class="fas fa-sign-in-alt"></i> Check-In</button>
+      <button class="sp-btn primary" onclick="sc_checkoutPrompt('${spEsc(d.idCode)}','${spEsc(d.brand||'')}','${spEsc(d.model||'')}','${spEsc(d.sn||'')}')"><i class="fas fa-sign-out-alt"></i> เช่ายืม</button>
+    </div>
+  </div>`).join(''));
+}
+function sc_field(k,v){return `<div class="sp-field"><div class="k">${spEsc(k)}</div><div class="v">${spEsc(v||'-')}</div></div>`;}
+function sc_record(idCode,action,payload={}){
+  const p=Object.assign({action,idCode},payload);
+  google.script.run.withSuccessHandler(res=>{
+    if(res&&res.success){Swal.fire('สำเร็จ',res.message,'success');sc_lookup();sc_loadLogs();}
+    else Swal.fire('ไม่สำเร็จ',(res&&res.message)||'Action failed','error');
+  }).withFailureHandler(err=>Swal.fire('Error',err.message||String(err),'error')).sc_recordCheckAction(p);
+}
+function sc_checkoutPrompt(idCode,brand,model,sn){
+  Swal.fire({
+    title:'Check-Out',
+    html:`<input id="swBorrower" class="swal2-input" placeholder="ผู้ยืม / Borrower">
+          <input id="swLocation" class="swal2-input" placeholder="สถานที่ / Location">
+          <input id="swDue" class="swal2-input" type="date">
+          <input id="swNote" class="swal2-input" placeholder="หมายเหตุ">`,
+    showCancelButton:true,
+    confirmButtonText:'ยืนยัน',
+    preConfirm:()=>({borrower:document.getElementById('swBorrower').value,location:document.getElementById('swLocation').value,expectedReturnDate:document.getElementById('swDue').value,note:document.getElementById('swNote').value})
+  }).then(r=>{
+    if(!r.isConfirmed)return;
+    const v=r.value;
+    if(!v.borrower||!v.location||!v.expectedReturnDate){Swal.fire('ข้อมูลไม่ครบ','','warning');return;}
+    sc_record(idCode,'CHECK-OUT',Object.assign(v,{brand,model,serialNumber:sn}));
+  });
+}
+function sc_ocrImage(input){
+  const file=input.files&&input.files[0]; if(!file)return;
+  if(typeof Tesseract==='undefined'){Swal.fire('OCR Error','Tesseract.js not loaded','error');return;}
+  Swal.fire({title:'กำลังอ่านภาพ...',allowOutsideClick:false,didOpen:()=>Swal.showLoading()});
+  Tesseract.recognize(file,'eng').then(({data:{text}})=>{
+    Swal.close();
+    const code=sc_extractCode(text);
+    if(code){document.getElementById('scKeyword').value=code;sc_lookup();}
+    else Swal.fire('ไม่พบรหัสในภาพ',text.slice(0,300),'warning');
+  }).catch(err=>Swal.fire('OCR Error',err.message||String(err),'error'));
+}
+function sc_extractCode(text){
+  const t=String(text||'').toUpperCase().replace(/\s+/g,' ');
+  const ces=t.match(/CESR\s*0*\d{1,6}/);
+  if(ces) return ces[0].replace(/\s+/g,'').replace(/CESR0*(\d+)/,(_,n)=>'CESR'+String(n).padStart(5,'0'));
+  const sn=t.match(/\b\d{8,14}\b/);
+  if(sn) return sn[0];
+  return '';
+}
+function sc_loadLogs(){
+  google.script.run.withSuccessHandler(res=>{
+    SC.logs=res&&res.logs?res.logs:[];
+    sc_renderLogs();
+  }).sc_getScanLogs(50);
+}
+function sc_renderLogs(){
+  const rows=SC.logs||[];
+  if(!rows.length){spSetHtml('scLogTable','<div class="sp-muted">No scan logs</div>');return;}
+  spSetHtml('scLogTable',`<div class="sp-table-wrap"><table class="sp-table"><thead><tr><th>Time</th><th>Action</th><th>ID</th><th>Result</th><th>Message</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${spEsc(r.timestamp)}</td><td>${spEsc(r.action)}</td><td><b>${spEsc(r.idCode)}</b></td><td>${spEsc(r.result)}</td><td>${spEsc(r.message)}</td></tr>`).join('')}</tbody></table></div>`);
+}
+function sc_hideWarning(){document.getElementById('scWarning')?.classList.add('hidden');}
+
+
+/* ============================================================
+   CES Stock Pro V15 — Check Stock Accessories Issue UI
+============================================================ */
+SC.accessories = SC.accessories || [];
+SC.accFiltered = SC.accFiltered || [];
+
+if(typeof window.sc_v15OriginalInit === 'undefined'){
+  window.sc_v15OriginalInit = initStockCheckModule;
+  initStockCheckModule = function(force=false){ window.sc_v15OriginalInit(force); setTimeout(()=>sc_loadAccessoryOptions(force),250); };
+}
+
+function sc_currentRequester_(){
+  const u=(typeof currentUser!=='undefined'&&currentUser)?currentUser:{};
+  return {id:u.id||'',name:u.name_eng||u.name_th||u.id||'',email:u.email||'',team:u.team||''};
+}
+
+function sc_loadAccessoryOptions(force=false){
+  google.script.run.withSuccessHandler(res=>{
+    if(!res||!res.success)return;
+    SC.accessories=res.data||[]; SC.accFiltered=SC.accessories;
+    const teams=[...new Set(SC.accessories.map(a=>a.team).filter(Boolean))].sort();
+    const teamEl=document.getElementById('scAccTeam'); if(teamEl) teamEl.innerHTML='<option value="all">All Team</option>'+teams.map(t=>`<option value="${spEsc(t)}">${spEsc(t)}</option>`).join('');
+    sc_filterAccessoryOptions();
+  }).withFailureHandler(err=>console.warn('Accessory options error',err)).sc_getAccessoryLookupOptions();
+}
+
+function sc_filterAccessoryOptions(){
+  const q=spVal('scAccSearch','').toLowerCase(), team=spVal('scAccTeam','all');
+  SC.accFiltered=(SC.accessories||[]).filter(a=>{const text=[a.accessoryId,a.itemName,a.team,a.status,a.actionRequired].join(' ').toLowerCase(); if(q&&!text.includes(q))return false; if(team!=='all'&&a.team!==team)return false; return true;});
+  const sel=document.getElementById('scAccSelect'); if(sel){sel.innerHTML='<option value="">เลือกอุปกรณ์</option>'+SC.accFiltered.map((a,i)=>`<option value="${i}">${spEsc(a.itemName)} (${spEsc(a.team)}) — ${spNum(a.stockQty)} pcs</option>`).join('');}
+  sc_previewSelectedAccessory();
+}
+function sc_previewSelectedAccessory(){
+  const i=Number(spVal('scAccSelect','-1')); const a=SC.accFiltered[i];
+  if(!a){spSetHtml('scAccPreview','<div class="sp-muted">เลือก accessories เพื่อดูจำนวนคงเหลือ</div>');return;}
+  spSetHtml('scAccPreview',`<div class="sp-field"><div class="k">${spEsc(a.team)} • ${spEsc(a.accessoryId)}</div><div class="v">${spEsc(a.itemName)} — คงเหลือ ${spNum(a.stockQty)} / Min ${spNum(a.minStockQty)}</div><div style="margin-top:8px"><input id="scAccQty" type="number" min="1" step="1" value="1" class="stockpro-control" style="max-width:140px;display:inline-block"> <input id="scAccBorrower" class="stockpro-control" style="max-width:240px;display:inline-block" placeholder="ผู้เบิก / requester"> <input id="scAccLocation" class="stockpro-control" style="max-width:240px;display:inline-block" placeholder="แผนก / location"></div></div>`);
+}
+function sc_issueSelectedAccessory(){
+  const i=Number(spVal('scAccSelect','-1')); const a=SC.accFiltered[i]; if(!a){Swal.fire('กรุณาเลือก accessories','','info');return;}
+  const qty=Math.max(1,Number(spVal('scAccQty','1'))||1); const stock=Number(a.stockQty||0), min=Number(a.minStockQty||0);
+  if(stock<=min){Swal.fire('ต้อง Restock ก่อนเบิกใช้',`คงเหลือ ${stock} / Min ${min}`,'warning');return;}
+  if(qty>stock){Swal.fire('จำนวนเกิน stock',`คงเหลือ ${stock}`,'warning');return;}
+  const requester=sc_currentRequester_(); const borrower=spVal('scAccBorrower','').trim()||requester.name||'Accessory Issue'; const location=spVal('scAccLocation','').trim()||requester.team||'Issue';
+  Swal.fire({title:'ส่งขออนุมัติเบิก...',allowOutsideClick:false,didOpen:()=>Swal.showLoading()});
+  google.script.run.withSuccessHandler(res=>{if(res&&res.success){Swal.fire('ส่งขออนุมัติแล้ว',res.message,'success');sc_loadAccessoryOptions(true);sc_loadLogs();}else Swal.fire('ไม่สำเร็จ',(res&&res.message)||'Request failed','error');}).withFailureHandler(err=>Swal.fire('Error',err.message||String(err),'error')).sc_requestAccessoryIssue({accessory:a,qty,borrower,location,requester,note:'Issue from Check Stock'});
+}
+
+
+
+
+/* V16 — Check Stock accessory issue UX polish */
+if(typeof window.sc_v16OriginalIssueSelectedAccessory==='undefined' && typeof sc_issueSelectedAccessory==='function'){
+  window.sc_v16OriginalIssueSelectedAccessory=sc_issueSelectedAccessory;
+  sc_issueSelectedAccessory=function(){
+    Swal.fire({title:'Sending approval request...',allowOutsideClick:false,didOpen:()=>Swal.showLoading()});
+    try { window.sc_v16OriginalIssueSelectedAccessory(); } finally { setTimeout(()=>{try{Swal.close();}catch(e){}},1200); }
+  };
+}
+
+function sc_changeStatus(idCode, newStatus) {
+  Swal.fire({
+    title: 'เปลี่ยนสถานะ',
+    text: idCode + ' → ' + newStatus,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'ยืนยัน'
+  }).then(r => {
+    if (!r.isConfirmed) return;
+    google.script.run.withSuccessHandler(res => {
+      if (res && res.success) { Swal.fire('สำเร็จ', 'เปลี่ยนสถานะเป็น ' + newStatus, 'success'); sc_lookup(); }
+      else Swal.fire('Error', (res && res.message) || 'Failed', 'error');
+    }).withFailureHandler(err => Swal.fire('Error', err.message || String(err), 'error'))
+      .sd_updateDeviceStatus(idCode, newStatus);
+  });
+}
+
+function sc_extendContract(idCode) {
+  Swal.fire({
+    title: 'ต่อสัญญาเช่ายืม',
+    html: '<input id="swNewDue" class="swal2-input" type="date" placeholder="วันกำหนดคืนใหม่">',
+    showCancelButton: true,
+    confirmButtonText: 'ต่อสัญญา',
+    preConfirm: () => document.getElementById('swNewDue').value
+  }).then(r => {
+    if (!r.isConfirmed || !r.value) return;
+    google.script.run.withSuccessHandler(res => {
+      if (res && res.success) { Swal.fire('สำเร็จ', 'ต่อสัญญาถึง ' + r.value, 'success'); sc_lookup(); sc_loadLogs(); }
+      else Swal.fire('Error', (res && res.message) || 'Failed', 'error');
+    }).withFailureHandler(err => Swal.fire('Error', err.message || String(err), 'error'))
+      .si_extendRental({ idCode: idCode, expectedReturnDate: r.value });
+  });
+}
+
+
+/* ============================================================
+   CES Stock Pro FINAL V5 — Frontend module for base_status only
+   Drop-in patch for Stock Dashboard / Inventory / Check Stock.
+   Load after 140,150,160 modules or use full patched files.
+============================================================ */
+(function(){
+  const ST = { READY:'พร้อมส่ง', RECHECK:'รอสอบเทียบ', RENTED:'เช่ายืม', BROKEN:'ใช้งานไม่ได้', MISSING:'ไม่พบในรายการ' };
+  const ORDER = [ST.READY, ST.RECHECK, ST.RENTED, ST.BROKEN, ST.MISSING];
+  const STATUS_MAP = {
+    'Stock':ST.RECHECK, 'STOCK':ST.RECHECK, 'Available':ST.READY, 'AVAILABLE':ST.READY, 'Ready':ST.READY, 'READY':ST.READY,
+    'Recheck':ST.RECHECK, 'RECHECK':ST.RECHECK, 'In-Use':ST.RENTED, 'IN_USE':ST.RENTED, 'IN-USE':ST.RENTED,
+    'Rented':ST.RENTED, 'RENTED':ST.RENTED, 'Overdue':ST.RENTED, 'OVERDUE':ST.RENTED,
+    'Broken':ST.BROKEN, 'BROKEN':ST.BROKEN, 'Missing':ST.MISSING, 'MISSING':ST.MISSING,
+    'พร้อมส่ง':ST.READY, 'รอสอบเทียบ':ST.RECHECK, 'เช่ายืม':ST.RENTED, 'ใช้งานไม่ได้':ST.BROKEN, 'ไม่พบในรายการ':ST.MISSING
+  };
+  window.CES_STOCK_STATUS = ST;
+  window.CES_STOCK_STATUS_ORDER = ORDER;
+
+  function esc(v){return String(v==null?'':v).replace(/[&<>'"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+  function html(id,v){const el=document.getElementById(id); if(el) el.innerHTML=v;}
+  function val(id,def=''){const el=document.getElementById(id); return el ? el.value : def;}
+  function num(v){return Number(v||0).toLocaleString('th-TH');}
+  function status(s){return STATUS_MAP[s] || s || ST.RECHECK;}
+  function toast(icon,title){ if(window.Swal) Swal.fire({toast:true,position:'top-end',icon,title,timer:1400,showConfirmButton:false}); }
+  function alertBox(title,text,icon='info'){ if(window.Swal) Swal.fire(title,text,icon); else alert(title+'\n'+(text||'')); }
+  function fmtDate(v){ if(!v) return '-'; const d=new Date(v); if(isNaN(d)) return esc(v); return d.toLocaleDateString('th-TH'); }
+  function badge(s){
+    s=status(s); const cls = s===ST.READY?'ready':s===ST.RECHECK?'recheck':s===ST.RENTED?'rented':s===ST.BROKEN?'broken':'missing';
+    return `<span class="sp-inf-badge ${cls}">${esc(s)}</span>`;
+  }
+  function json(obj){return JSON.stringify(obj||{}).replace(/'/g,'&#39;').replace(/</g,'&lt;');}
+  function run(fn,args,onSuccess,onFailure){
+    args = args || [];
+    if(window.google && google.script && google.script.run){
+      const r = google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure || (e=>alertBox('Error', e.message || String(e),'error')));
+      if(typeof r[fn] === 'function') return r[fn].apply(r,args);
+    }
+    if(window.cesApiCall){ return window.cesApiCall(fn, args).then(onSuccess).catch(onFailure || console.error); }
+    if(window.CES_CONFIG && window.CES_CONFIG.GAS_API_URL){
+      const cb='jsonp_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+      window[cb]=function(res){ try{ onSuccess(res && res.data && res.data.result ? res.data.result : res); } finally{ delete window[cb]; script.remove(); } };
+      const url=window.CES_CONFIG.GAS_API_URL+'?callback='+cb+'&action=call&fn='+encodeURIComponent(fn)+'&args='+encodeURIComponent(JSON.stringify(args));
+      const script=document.createElement('script'); script.src=url; script.onerror=()=>{delete window[cb]; onFailure&&onFailure(new Error('API error'));}; document.body.appendChild(script); return;
+    }
+    alertBox('Connection Error','ไม่พบ google.script.run หรือ API bridge','error');
+  }
+  function ensureStyle(){
+    if(document.getElementById('ces-stock-base-status-v5-style')) return;
+    const css=`
+    .stockpro-filter-card{display:grid!important;grid-template-columns:minmax(250px,2fr) repeat(3,minmax(140px,1fr))!important;gap:10px!important;align-items:center!important}
+    .stockpro-kpi-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important;gap:12px!important;margin:14px 0!important}
+    .sp-kpi{background:#fff!important;border:1px solid #e2e8f0!important;border-radius:18px!important;padding:16px!important;box-shadow:0 8px 22px rgba(15,23,42,.06)!important;min-height:118px!important}
+    .sp-kpi .label{font-size:12px!important;color:#64748b!important;font-weight:900!important}.sp-kpi .val{font-size:28px!important;font-weight:1000!important;color:#003DA5!important}.sp-kpi .ico{width:38px!important;height:38px!important;border-radius:14px!important;display:flex!important;align-items:center!important;justify-content:center!important;margin-bottom:8px!important}
+    .sp-inf-badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:1000;white-space:nowrap}.sp-inf-badge.ready{background:#dcfce7;color:#047857}.sp-inf-badge.recheck{background:#fef3c7;color:#b45309}.sp-inf-badge.rented{background:#dbeafe;color:#1d4ed8}.sp-inf-badge.broken{background:#fee2e2;color:#b91c1c}.sp-inf-badge.missing{background:#ede9fe;color:#6d28d9}
+    .sp-action-group{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap}.sp-icon-btn{width:34px;height:34px;border-radius:10px;border:1px solid #dbeafe;background:#fff;color:#003DA5;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}.sp-icon-btn.green{background:#ecfdf5;color:#047857;border-color:#bbf7d0}.sp-icon-btn.orange{background:#fff7ed;color:#c2410c;border-color:#fed7aa}.sp-icon-btn.red{background:#fef2f2;color:#dc2626;border-color:#fecaca}.sp-icon-btn.gray{background:#f8fafc;color:#475569;border-color:#e2e8f0}.sp-icon-btn:disabled{opacity:.45;cursor:not-allowed}
+    .sp-mode-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important;gap:12px!important}.sp-mode{border:1px solid #dbeafe!important;border-radius:16px!important;padding:16px!important;text-align:center!important;background:#fff!important;cursor:pointer!important;font-weight:900!important}.sp-mode.active{background:#003DA5!important;color:#fff!important;border-color:#003DA5!important}.sp-mode.cf.active{background:#059669!important;border-color:#059669!important}
+    .sp-table-wrap{overflow:auto!important}.sp-table{width:100%!important;border-collapse:collapse!important;font-size:12px!important}.sp-table th{position:sticky;top:0;background:#f8fafc;color:#64748b;text-transform:uppercase;font-size:11px;padding:10px;border-bottom:1px solid #e2e8f0}.sp-table td{padding:10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}.sp-id{font-weight:1000;color:#0f172a}.sp-sub{display:block;font-size:10px;color:#64748b;margin-top:2px}.sp-muted{color:#64748b;font-size:12px}.sp-pill{background:#f1f5f9;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:900;color:#475569}
+    @media(max-width:800px){.stockpro-filter-card{grid-template-columns:1fr!important}.stockpro-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.stockpro-two-col{grid-template-columns:1fr!important}}
+    `;
+    const style=document.createElement('style'); style.id='ces-stock-base-status-v5-style'; style.textContent=css; document.head.appendChild(style);
+  }
+  function kpiItems(k){return [
+    ['อุปกรณ์ทั้งหมด', k.total||0, 'fa-boxes-stacked', '#003DA5', '#eaf2ff'],
+    ['พร้อมส่ง', k.ready||k.stock||0, 'fa-check-circle', '#059669', '#dcfce7'],
+    ['รอสอบเทียบ', k.recheck||0, 'fa-screwdriver-wrench', '#c05600', '#fef3c7'],
+    ['เช่ายืม', k.rented||k.inUse||0, 'fa-arrow-right-arrow-left', '#2563eb', '#dbeafe'],
+    ['ใช้งานไม่ได้', k.broken||0, 'fa-triangle-exclamation', '#dc2626', '#fee2e2'],
+    ['ไม่พบในรายการ', k.missing||0, 'fa-circle-question', '#7c3aed', '#ede9fe']
+  ];}
+  function renderKpi(target,k){html(target,kpiItems(k||{}).map(i=>`<div class="sp-kpi"><div class="ico" style="background:${i[4]}"><i class="fas ${i[2]}" style="color:${i[3]}"></i></div><div class="label">${i[0]}</div><div class="val" style="color:${i[3]}">${num(i[1])}</div></div>`).join(''));}
+  function fillSelect(id,arr,label){const el=document.getElementById(id); if(!el) return; const cur=el.value||'all'; el.innerHTML=`<option value="all">${esc(label)}</option>`+(arr||[]).filter(Boolean).map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join(''); el.value=(arr||[]).includes(cur)?cur:'all';}
+  function normalizeRows(rows){return (rows||[]).map(d=>{d.status=status(d.status||d.baseStatus||d.base_status);d.baseStatus=d.status;d.base_status=d.status;return d;});}
+
+  // ---------- Dashboard ----------
+  window.initStockDashboardModule=function(force=false){
+    ensureStyle(); html('sdKpiGrid','<div class="sp-muted">Loading dashboard...</div>');
+    run('sd_getStockDashboardData',[force===true],res=>{ if(!res||!res.success){alertBox('Dashboard Error',(res&&res.message)||'Cannot load','error');return;} window.SD_DASH=window.SD_DASH||{}; SD_DASH.raw=res; SD_DASH.loaded=true; SD_DASH.filtered=normalizeRows(res.inventory||res.devices||[]); sd_fillFilters(); sd_renderModelCards(); sd_renderKpi(); sd_renderFiltered(); },e=>alertBox('Dashboard Error',e.message||String(e),'error'));
+  };
+  window.sd_fillFilters=function(){const f=(SD_DASH.raw&&SD_DASH.raw.filters)||{}; fillSelect('sdBrand',f.brands||[], 'แบรนด์ทั้งหมด'); fillSelect('sdModel',f.models||[], 'โมเดลทั้งหมด'); fillSelect('sdStatus',ORDER,'สถานะทั้งหมด');};
+  window.sd_renderKpi=function(){renderKpi('sdKpiGrid',(SD_DASH.raw&&SD_DASH.raw.kpi)||{}); const alerts=((SD_DASH.raw&&SD_DASH.raw.alerts)||[]).length; html('sdAlertHeaderCount',alerts); html('sdAlertCount',alerts+' alerts');};
+  window.sd_renderModelCards=function(){const cards=((SD_DASH.raw&&SD_DASH.raw.modelCards)||[]); html('sdModelCards',cards.map(c=>`<div class="sp-model-card" style="border-color:${c.color||'#bfdbfe'}"><div class="sp-model-icon" style="background:${c.bg||'#dbeafe'};color:${c.color||'#003DA5'}"><i class="fas fa-microchip"></i></div><div class="sp-model-brand">${esc(c.brand)}</div><div class="sp-model-label">${esc(c.label)}</div><div class="sp-model-num" style="color:${c.color||'#003DA5'}">${num(c.total)}</div><div class="sp-model-sub">พร้อมส่ง ${num(c.ready||0)} • รอสอบเทียบ ${num(c.recheck||0)} • เช่ายืม ${num(c.inUse||c.rented||0)}</div></div>`).join(''));};
+  window.sd_renderFiltered=function(){
+    const q=val('sdSearch','').toLowerCase(), b=val('sdBrand','all'), m=val('sdModel','all'), s=val('sdStatus','all');
+    const rows=normalizeRows((SD_DASH.raw&&SD_DASH.raw.inventory)||[]).filter(d=>{const text=[d.idCode,d.sn,d.brand,d.model,d.itemName,d.location,d.borrower,d.status].join(' ').toLowerCase(); if(q&&!text.includes(q))return false; if(b!=='all'&&d.brand!==b)return false; if(m!=='all'&&d.model!==m)return false; if(s!=='all'&&status(d.status)!==s)return false; return true;});
+    const byModel={}; rows.forEach(d=>{const key=(d.brand||'-')+' / '+(d.model||d.itemName||'-'); byModel[key]=byModel[key]||{name:key,total:0,ready:0,recheck:0,rented:0,broken:0,missing:0}; byModel[key].total++; const st=status(d.status); if(st===ST.READY)byModel[key].ready++; else if(st===ST.RECHECK)byModel[key].recheck++; else if(st===ST.RENTED)byModel[key].rented++; else if(st===ST.BROKEN)byModel[key].broken++; else if(st===ST.MISSING)byModel[key].missing++;});
+    html('sdSummaryTable',`<div class="sp-table-wrap"><table class="sp-table"><thead><tr><th>Model</th><th>Total</th><th>พร้อมส่ง</th><th>รอสอบเทียบ</th><th>เช่ายืม</th><th>ใช้งานไม่ได้</th><th>ไม่พบ</th></tr></thead><tbody>${Object.values(byModel).map(x=>`<tr><td>${esc(x.name)}</td><td>${num(x.total)}</td><td>${num(x.ready)}</td><td>${num(x.recheck)}</td><td>${num(x.rented)}</td><td>${num(x.broken)}</td><td>${num(x.missing)}</td></tr>`).join('')}</tbody></table></div>`);
+    const byLoc={}; rows.forEach(d=>{const key=d.location||'-'; byLoc[key]=(byLoc[key]||0)+1;}); html('sdLocationTable',`<div class="sp-table-wrap"><table class="sp-table"><thead><tr><th>Location</th><th>Count</th></tr></thead><tbody>${Object.keys(byLoc).sort().map(k=>`<tr><td>${esc(k)}</td><td>${num(byLoc[k])}</td></tr>`).join('')}</tbody></table></div>`);
+    const alertRows=rows.filter(d=>[ST.RECHECK,ST.BROKEN,ST.MISSING].includes(status(d.status))).slice(0,80); html('sdAlertTable',`<div class="sp-table-wrap"><table class="sp-table"><thead><tr><th>ID</th><th>SN</th><th>Model</th><th>Status</th><th>Location</th></tr></thead><tbody>${alertRows.map(d=>`<tr><td>${esc(d.idCode)}</td><td>${esc(d.sn)}</td><td>${esc(d.model||d.itemName)}</td><td>${badge(d.status)}</td><td>${esc(d.location)}</td></tr>`).join('')}</tbody></table></div>`);
+  };
+
+  // ---------- Inventory ----------
+  window.SI=window.SI||{loaded:false,tab:'equip',raw:null,inv:[],acc:[],filtered:[],accFiltered:[],page:1,accPage:1,pageSize:50,cart:[]};
+  window.initStockInventoryModule=function(force=false){
+    ensureStyle(); const bd=document.getElementById('siBorrowDate'); if(bd&&!bd.value)bd.value=new Date().toISOString().slice(0,10); html('siTable','<div class="sp-muted">Loading inventory...</div>');
+    run('si_getStockInventoryData',[force===true],res=>{ if(!res||!res.success){alertBox('Inventory Error',(res&&res.message)||'Cannot load','error');return;} SI.loaded=true; SI.raw=res; SI.inv=normalizeRows(res.inventory||[]); SI.acc=res.accessories||[]; si_fillFilters(); si_renderKpi(); si_applyFilters(); },e=>alertBox('Inventory Error',e.message||String(e),'error'));
+  };
+  window.si_fillFilters=function(){const f=(SI.raw&&SI.raw.filters)||{}; fillSelect('siBrand',f.brands||[], 'All Brand'); fillSelect('siModel',f.models||[], 'All Model'); fillSelect('siLocation',f.locations||[], 'All Location'); fillSelect('siStatus',ORDER,'All Status'); fillSelect('siAccTeam',[...new Set((SI.acc||[]).map(a=>a.team).filter(Boolean))].sort(),'All Team'); fillSelect('siAccItem',[...new Set((SI.acc||[]).map(a=>a.itemName||a.name).filter(Boolean))].sort(),'All Item'); fillSelect('siAccStatus',[...new Set((SI.acc||[]).map(a=>a.status).filter(Boolean))].sort(),'All Status');};
+  window.si_switchTab=function(tab){SI.tab=tab; document.getElementById('siTabEquip')?.classList.toggle('active',tab==='equip'); document.getElementById('siTabAcc')?.classList.toggle('active',tab==='acc'); document.getElementById('siEquipFilters')?.classList.toggle('hidden',tab!=='equip'); document.getElementById('siAccFilters')?.classList.toggle('hidden',tab!=='acc'); document.getElementById('siEquipSection')?.classList.toggle('hidden',tab!=='equip'); document.getElementById('siAccSection')?.classList.toggle('hidden',tab!=='acc'); document.getElementById('siEquipKpiGrid')?.classList.toggle('hidden',tab!=='equip'); document.getElementById('siAccKpiGrid')?.classList.toggle('hidden',tab!=='acc'); si_applyFilters();};
+  window.si_renderKpi=function(){renderKpi('siEquipKpiGrid',(SI.raw&&SI.raw.kpi)||{}); renderKpi('siKpiGrid',(SI.raw&&SI.raw.kpi)||{}); const k=(SI.raw&&SI.raw.kpi)||{}; html('siAccKpiGrid',`<div class="sp-kpi"><div class="label">Accessories</div><div class="val">${num(k.accessories||0)}</div></div><div class="sp-kpi"><div class="label">Low Stock</div><div class="val">${num(k.accLow||0)}</div></div>`);};
+  window.si_applyFilters=function(){
+    if(SI.tab==='acc'){return si_renderAccCards ? si_renderAccCards() : null;}
+    const q=val('siSearch','').toLowerCase(), b=val('siBrand','all'), m=val('siModel','all'), l=val('siLocation','all'), s=val('siStatus','all');
+    SI.filtered=normalizeRows(SI.inv).filter(d=>{const text=[d.idCode,d.sn,d.brand,d.model,d.itemName,d.location,d.status,d.borrower,d.actionRequired].join(' ').toLowerCase(); if(q&&!text.includes(q))return false; if(b!=='all'&&d.brand!==b)return false; if(m!=='all'&&d.model!==m)return false; if(l!=='all'&&d.location!==l)return false; if(s!=='all'&&status(d.status)!==s)return false; return true;}); SI.page=1; si_renderTable();
+  };
+  window.si_renderTable=function(){const start=(SI.page-1)*SI.pageSize, rows=SI.filtered.slice(start,start+SI.pageSize); html('siTableCount',`${SI.filtered.length} items`); if(!rows.length){html('siTable','<div class="sp-muted">No equipment found</div>'); html('siPagination',''); return;} html('siTable',`<div class="sp-table-wrap"><table class="sp-table"><thead><tr><th>#</th><th>ID Code</th><th>SN</th><th>Brand / Model</th><th>Status</th><th>Borrower</th><th>Location</th><th>Due Date</th><th>Action Required</th><th>Action</th></tr></thead><tbody>${rows.map((d,i)=>`<tr><td>${start+i+1}</td><td><span class="sp-id">${esc(d.idCode)}</span></td><td>${esc(d.sn||'-')}</td><td><b>${esc(d.brand||'-')}</b><span class="sp-sub">${esc(d.model||d.itemName||'-')}</span></td><td>${badge(d.status)}</td><td>${esc(d.borrower||'-')}</td><td>${esc(d.location||'-')}</td><td>${fmtDate(d.expectedReturn||d.expectedReturnDate)}</td><td>${esc(d.actionRequired||d.recheckNote||'-')}</td><td>${si_actionButtons(d)}</td></tr>`).join('')}</tbody></table></div>`); si_renderPagination();};
+  window.si_actionButtons=function(d){const st=status(d.status); return `<div class="sp-action-group"><button class="sp-icon-btn" title="Add to cart" ${st!==ST.READY?'disabled':''} onclick='si_addEquipmentToCart(${json(d)})'><i class="fas fa-cart-plus"></i></button><button class="sp-icon-btn green" title="CF CAL/PM → พร้อมส่ง" ${st!==ST.RECHECK?'disabled':''} onclick='si_confirmCalPm(${json(d)})'><i class="fas fa-screwdriver-wrench"></i></button><button class="sp-icon-btn orange" title="รับคืน → รอสอบเทียบ" ${st!==ST.RENTED?'disabled':''} onclick='si_returnPrompt(${json(d)})'><i class="fas fa-undo"></i></button><button class="sp-icon-btn gray" title="Edit" onclick='si_editPrompt(${json(d)})'><i class="fas fa-pen-to-square"></i></button><button class="sp-icon-btn red" title="ใช้งานไม่ได้" onclick='si_markBrokenPrompt(${json(d)})'><i class="fas fa-triangle-exclamation"></i></button></div>`;};
+  window.si_renderPagination=function(){const total=Math.max(1,Math.ceil((SI.filtered||[]).length/SI.pageSize)); let btns=''; for(let p=Math.max(1,SI.page-2);p<=Math.min(total,SI.page+2);p++) btns+=`<button class="${p===SI.page?'active':''}" onclick="SI.page=${p};si_renderTable()">${p}</button>`; html('siPagination',`<div class="sp-muted">Page ${SI.page} / ${total} • 50 rows per page</div><div class="sp-page-buttons"><button ${SI.page<=1?'disabled':''} onclick="SI.page--;si_renderTable()">Prev</button>${btns}<button ${SI.page>=total?'disabled':''} onclick="SI.page++;si_renderTable()">Next</button></div>`);};
+  window.si_addEquipmentToCart=function(d){if(!d||!d.idCode)return; if(status(d.status)!==ST.READY){alertBox('ไม่สามารถเพิ่มได้',`${d.idCode} สถานะ: ${status(d.status)}\nต้อง CF CAL/PM เป็นพร้อมส่งก่อน`,'warning');return;} if(SI.cart.find(x=>x.kind==='equipment'&&x.idCode===d.idCode)){toast('info','อยู่ในตะกร้าแล้ว');return;} SI.cart.push(Object.assign({kind:'equipment',qty:1},d)); if(window.si_updateCart) si_updateCart(); toast('success',`เพิ่ม ${d.idCode}`);};
+  window.si_confirmCalPm=function(d){ if(!d||!d.idCode)return; if(window.Swal){Swal.fire({title:'CF CAL/PM ผ่าน?',text:`${d.idCode} จะเปลี่ยนจาก รอสอบเทียบ เป็น พร้อมส่ง`,icon:'question',showCancelButton:true,confirmButtonText:'ยืนยัน'}).then(r=>{if(r.isConfirmed) si_callAction('CF_CAL_PM',d);});} else si_callAction('CF_CAL_PM',d); };
+  window.si_callAction=function(action,d,payload={}){run('sc_recordCheckAction',[Object.assign({action,idCode:d.idCode,brand:d.brand,model:d.model,serialNumber:d.sn},payload)],res=>{if(res&&res.success){toast('success',res.message||'Completed'); initStockInventoryModule(true); if(typeof initStockDashboardModule==='function')initStockDashboardModule(true);} else alertBox('ไม่สำเร็จ',(res&&res.message)||'Action failed','error');});};
+  window.si_returnPrompt=function(d){ if(window.Swal){Swal.fire({title:'รับคืน '+d.idCode,html:`<input id="swReturnLoc" class="swal2-input" placeholder="สถานที่รับคืน" value="Warehouse"><input id="swNote" class="swal2-input" placeholder="หมายเหตุ">`,showCancelButton:true,confirmButtonText:'รับคืน'}).then(r=>{if(r.isConfirmed) si_callAction('CHECK-IN',d,{location:val('swReturnLoc','Warehouse'),note:val('swNote','')});});} else si_callAction('CHECK-IN',d,{location:'Warehouse'}); };
+  window.si_editPrompt=function(d){ const st=status(d.status); if(!window.Swal){return;} Swal.fire({title:'Edit Equipment',width:720,html:`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:left"><input id="edId" class="swal2-input" placeholder="ID Code" value="${esc(d.idCode)}"><input id="edSn" class="swal2-input" placeholder="SN" value="${esc(d.sn||'')}"><input id="edBrand" class="swal2-input" placeholder="Brand" value="${esc(d.brand||'')}"><input id="edModel" class="swal2-input" placeholder="Model" value="${esc(d.model||'')}"><input id="edLoc" class="swal2-input" placeholder="Location" value="${esc(d.location||'')}"><select id="edStatus" class="swal2-input">${ORDER.map(x=>`<option value="${x}">${x}</option>`).join('')}</select><input id="edAction" class="swal2-input" placeholder="Action Required" value="${esc(d.actionRequired||'')}"><input id="edNote" class="swal2-input" placeholder="Note" value="${esc(d.recheckNote||'')}"></div>`,showCancelButton:true,confirmButtonText:'Save',didOpen:()=>{document.getElementById('edStatus').value=st;},preConfirm:()=>({originalIdCode:d.idCode,idCode:val('edId'),serialNumber:val('edSn'),brand:val('edBrand'),model:val('edModel'),location:val('edLoc'),baseStatus:val('edStatus'),actionRequired:val('edAction'),recheckNote:val('edNote')})}).then(r=>{if(!r.isConfirmed)return; run('si_editEquipment',[r.value],res=>{if(res&&res.success){toast('success','บันทึกแล้ว'); initStockInventoryModule(true);} else alertBox('ไม่สำเร็จ',(res&&res.message)||'Save failed','error');});}); };
+  window.si_markBrokenPrompt=function(d){ if(window.Swal){Swal.fire({title:'ตั้งเป็นใช้งานไม่ได้?',text:d.idCode,icon:'warning',showCancelButton:true,confirmButtonText:'ยืนยัน'}).then(r=>{if(r.isConfirmed) run('si_editEquipment',[{originalIdCode:d.idCode,baseStatus:ST.BROKEN,actionRequired:'ใช้งานไม่ได้'}],res=>{if(res&&res.success){toast('success','อัปเดตแล้ว');initStockInventoryModule(true);}else alertBox('ไม่สำเร็จ',res.message,'error');});});}};
+
+  // ---------- Check Stock ----------
+  window.SC=window.SC||{mode:'CHECK-IN',logs:[]};
+  window.initStockCheckModule=function(force=false){ensureStyle(); sc_ensureCfMode(); sc_setMode(SC.mode||'CHECK-IN'); if(typeof sc_loadLogs==='function') sc_loadLogs();};
+  window.sc_ensureCfMode=function(){ if(document.getElementById('scModeCf')) return; const grid=document.querySelector('#view-check_stock .sp-mode-grid'); if(!grid) return; const div=document.createElement('div'); div.className='sp-mode cf'; div.id='scModeCf'; div.onclick=()=>sc_setMode('CF_CAL_PM'); div.innerHTML='<i class="fas fa-screwdriver-wrench"></i><br/>CF CAL/PM<br/><span class="sp-sub">รอสอบเทียบ → พร้อมส่ง</span>'; grid.appendChild(div); };
+  window.sc_setMode=function(mode){SC.mode=mode; ['scModeIn','scModeOut','scModeCf'].forEach(id=>document.getElementById(id)?.classList.remove('active','in','out')); document.getElementById('scModeIn')?.classList.toggle('active',mode==='CHECK-IN'); document.getElementById('scModeOut')?.classList.toggle('active',mode==='CHECK-OUT'); document.getElementById('scModeCf')?.classList.toggle('active',mode==='CF_CAL_PM'); const txt=document.getElementById('scModeText'); if(txt){txt.style.color=mode==='CF_CAL_PM'?'#059669':mode==='CHECK-OUT'?'#2563eb':'#c05600'; txt.innerHTML=mode==='CF_CAL_PM'?'● โหมด: CF CAL/PM (รอสอบเทียบ → พร้อมส่ง)':mode==='CHECK-OUT'?'● โหมด: ส่งออกเช่ายืม (พร้อมส่ง → เช่ายืม)':'● โหมด: รับคืนเข้าคลัง (เช่ายืม → รอสอบเทียบ)';}};
+  window.sc_lookup=function(){const q=val('scKeyword','').trim(); if(!q){alertBox('กรุณากรอกรหัส','','info');return;} html('scResult','<div class="stockpro-card"><div class="sp-muted">กำลังค้นหา...</div></div>'); run('sc_lookupStockDevice',[q],res=>{if(!res||!res.success){alertBox('Check Stock Error',(res&&res.message)||'Lookup failed','error');return;} sc_renderResult(normalizeRows(res.data||[])); if(typeof sc_loadLogs==='function') sc_loadLogs();});};
+  window.sc_renderResult=function(rows){ if(!rows.length){html('scResult','<div class="stockpro-card"><h3>ไม่พบข้อมูล</h3><div class="sp-muted">ลองตรวจสอบ ID / SN อีกครั้ง</div></div>');return;} html('scResult',rows.map(d=>{const st=status(d.status); return `<div class="stockpro-card"><div class="stockpro-card-head"><h3>${esc(d.idCode)} ${badge(st)}</h3><span class="sp-pill">${esc(d.brand||'-')}</span></div><div class="sp-result-grid"><div class="sp-field"><div class="k">Serial Number</div><div class="v">${esc(d.sn||'-')}</div></div><div class="sp-field"><div class="k">Model</div><div class="v">${esc(d.model||d.itemName||'-')}</div></div><div class="sp-field"><div class="k">Location</div><div class="v">${esc(d.location||'-')}</div></div><div class="sp-field"><div class="k">Borrower</div><div class="v">${esc(d.borrower||'-')}</div></div><div class="sp-field"><div class="k">Due Date</div><div class="v">${fmtDate(d.expectedReturn||d.expectedReturnDate)}</div></div><div class="sp-field"><div class="k">Action Required</div><div class="v">${esc(d.actionRequired||'-')}</div></div></div><div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button class="sp-btn success" ${st!==ST.RENTED?'disabled':''} onclick="sc_record('${esc(d.idCode)}','CHECK-IN')"><i class="fas fa-sign-in-alt"></i> Check-In → รอสอบเทียบ</button><button class="sp-btn primary" ${st!==ST.READY?'disabled':''} onclick="sc_checkoutPrompt('${esc(d.idCode)}','${esc(d.brand||'')}','${esc(d.model||'')}','${esc(d.sn||'')}')"><i class="fas fa-sign-out-alt"></i> Check-Out</button><button class="sp-btn success" ${st!==ST.RECHECK?'disabled':''} onclick="sc_record('${esc(d.idCode)}','CF_CAL_PM')"><i class="fas fa-screwdriver-wrench"></i> CF CAL/PM → พร้อมส่ง</button></div></div>`;}).join('')); };
+  window.sc_record=function(idCode,action,payload={}){run('sc_recordCheckAction',[Object.assign({action,idCode},payload)],res=>{if(res&&res.success){toast('success',res.message||'สำเร็จ'); sc_lookup(); if(typeof sc_loadLogs==='function') sc_loadLogs();} else alertBox('ไม่สำเร็จ',(res&&res.message)||'Action failed','error');});};
+  window.sc_checkoutPrompt=function(idCode,brand,model,sn){ if(!window.Swal){return sc_record(idCode,'CHECK-OUT');} Swal.fire({title:'Check-Out',html:`<input id="swBorrower" class="swal2-input" placeholder="ผู้ยืม / Borrower"><input id="swLocation" class="swal2-input" placeholder="สถานที่ / Location"><input id="swDue" class="swal2-input" type="date"><input id="swNote" class="swal2-input" placeholder="หมายเหตุ">`,showCancelButton:true,confirmButtonText:'ยืนยัน',preConfirm:()=>({borrower:val('swBorrower'),location:val('swLocation'),expectedReturnDate:val('swDue'),note:val('swNote')})}).then(r=>{if(!r.isConfirmed)return; const v=r.value; if(!v.borrower||!v.location||!v.expectedReturnDate){alertBox('ข้อมูลไม่ครบ','','warning');return;} sc_record(idCode,'CHECK-OUT',Object.assign(v,{brand,model,serialNumber:sn}));}); };
+})();
