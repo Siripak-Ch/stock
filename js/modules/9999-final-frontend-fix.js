@@ -453,36 +453,140 @@
     ]).then(normalizeStockData);
   }
   function patchStock() {
-    window.initStockDashboardModule = function (force) {
+    function ensureStockUiTheme() {
       injectTheme();
-      var el = $('#view-stock_dashboard') || $('#stockpro-dashboard') || $('#main-content');
+      try { if (typeof window.spEnsureStyle === 'function') window.spEnsureStyle(); } catch (e) {}
+      try { if (typeof window.sd_v17Style === 'function') window.sd_v17Style(); } catch (e) {}
+      try { if (typeof window.si_v17Style === 'function') window.si_v17Style(); } catch (e) {}
+      try { if (typeof window.si_v14Style === 'function') window.si_v14Style(); } catch (e) {}
+    }
+    function inlineError(targetId, title, message, retryFn) {
+      var el = document.getElementById(targetId);
       if (!el) return;
-      if (typeof window.sdEnsureStyle === 'function') { try { window.sdEnsureStyle(); } catch (e) {} }
-      el.innerHTML = '<div class="stockpro-dashboard"><div class="sp-loading"><div class="spinner"></div><p>กำลังโหลด Stock Dashboard...</p></div></div>';
-      loadStockData(force).then(function (data) {
-        if (typeof window.sdRender === 'function') window.sdRender(el, data);
-        else renderStockFallback(el, data);
-      }).catch(function (err) {
-        el.innerHTML = '<div class="ces-final-error">โหลด Stock Dashboard ไม่สำเร็จ: ' + esc(err && err.message ? err.message : err) + '</div>';
-      });
+      el.innerHTML = '<div class="stockpro-card" style="border-color:#fecaca;background:linear-gradient(180deg,#fff7f7,#fff1f2);">' +
+        '<div class="stockpro-card-head">' +
+          '<h3 style="color:#b91c1c"><i class="fas fa-triangle-exclamation"></i> ' + esc(title) + '</h3>' +
+          '<button class="sp-btn danger" onclick="' + retryFn + '"><i class="fas fa-rotate-right"></i> Retry</button>' +
+        '</div>' +
+        '<div class="sp-muted" style="color:#7f1d1d">' + esc(message || 'Unknown error') + '</div>' +
+      '</div>';
+    }
+
+    window.initStockDashboardModule = function (force) {
+      ensureStockUiTheme();
+      var view = $('#view-stock_dashboard') || $('#stockpro-dashboard') || $('#main-content');
+      if (!view) return;
+
+      var cacheKey = 'CES_STOCK_DASHBOARD_CACHE_V17';
+      var cacheTtlMs = 5 * 60 * 1000;
+
+      function renderFromPayload(res, fromCache) {
+        if (!res || !res.success) {
+          var msg = (res && res.message) || 'Cannot load dashboard';
+          inlineError('sdKpiGrid', 'Stock Dashboard Error', msg, 'initStockDashboardModule(true)');
+          if (!fromCache && window.Swal) window.Swal.fire('Stock Dashboard Error', msg, 'error');
+          return;
+        }
+        try {
+          window.SD_DASH = window.SD_DASH || {};
+          SD_DASH.loaded = true;
+          SD_DASH.raw = res;
+          sessionStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data: res }));
+          if (typeof sd_fillFilters === 'function') sd_fillFilters();
+          if (typeof sd_renderAll === 'function') {
+            sd_renderAll();
+          } else {
+            renderStockFallback(view, normalizeStockData(res));
+          }
+          if (!fromCache && window.Swal) window.Swal.close();
+        } catch (err) {
+          var emsg = err && err.message ? err.message : String(err);
+          inlineError('sdKpiGrid', 'Stock Dashboard Render Error', emsg, 'initStockDashboardModule(true)');
+          if (window.Swal) window.Swal.fire('Stock Dashboard Render Error', emsg, 'error');
+        }
+      }
+
+      if (!force) {
+        try {
+          var cached = JSON.parse(sessionStorage.getItem(cacheKey) || 'null');
+          if (cached && cached.data && (Date.now() - Number(cached.ts || 0) < cacheTtlMs)) {
+            renderFromPayload(cached.data, true);
+            return;
+          }
+        } catch (e) {}
+      }
+
+      if (typeof spSetHtml === 'function') {
+        spSetHtml('sdModelCards', '<div class="sp-muted">Loading models...</div>');
+        spSetHtml('sdKpiGrid', '<div class="sp-muted">Loading dashboard...</div>');
+        spSetHtml('sdSummaryTable', '<div class="sp-muted">Loading summary...</div>');
+        spSetHtml('sdLocationTable', '<div class="sp-muted">Loading locations...</div>');
+        spSetHtml('sdContractTable', '<div class="sp-muted">Loading contracts...</div>');
+        spSetHtml('sdAlertTable', '<div class="sp-muted">Loading alerts...</div>');
+      }
+      if (window.Swal) {
+        window.Swal.fire({
+          title: 'Loading page...',
+          html: '<div style="font-size:12px;color:#64748b">Preparing Stock Dashboard</div>',
+          allowOutsideClick: false,
+          showConfirmButton: false,
+          didOpen: function(){ window.Swal.showLoading(); }
+        });
+      }
+      google.script.run
+        .withSuccessHandler(function(res){ renderFromPayload(res, false); })
+        .withFailureHandler(function(err){
+          var msg = err && err.message ? err.message : String(err);
+          if (window.Swal) window.Swal.close();
+          inlineError('sdKpiGrid', 'Stock Dashboard Error', msg, 'initStockDashboardModule(true)');
+          if (window.Swal) window.Swal.fire('Stock Dashboard Error', msg, 'error');
+        })
+        .sd_getStockDashboardData(force === true);
     };
     window.sdRefresh = function () { return window.initStockDashboardModule(true); };
     window.sdLoadDashboard = function () { return window.initStockDashboardModule(false); };
 
     window.initStockInventoryModule = function (force) {
-      injectTheme();
-      var el = $('#view-inventory') || $('#stockpro-inventory') || $('#main-content');
-      if (!el) return;
-      if (typeof window.siEnsureStyle === 'function') { try { window.siEnsureStyle(); } catch (e) {} }
-      el.innerHTML = '<div class="stockpro-inventory"><div class="si-loading">⏳ กำลังโหลด Inventory...</div></div>';
-      loadStockData(force).then(function (data) {
-        try { siDevices = data.devices.slice(); siFiltered = data.devices.slice(); siPage = 1; } catch (e) {}
-        try { localStorage.setItem('CES_STOCK_INVENTORY_CACHE', JSON.stringify({ ts: Date.now(), data: data.devices })); } catch (e2) {}
-        if (typeof window.siRenderFull === 'function') window.siRenderFull(el);
-        else renderInventoryFallback(el, data.devices);
-      }).catch(function (err) {
-        el.innerHTML = '<div class="ces-final-error">โหลด Inventory ไม่สำเร็จ: ' + esc(err && err.message ? err.message : err) + '</div>';
-      });
+      ensureStockUiTheme();
+      var view = $('#view-inventory') || $('#stockpro-inventory') || $('#main-content');
+      if (!view) return;
+      var today = new Date().toISOString().slice(0, 10);
+      var bd = document.getElementById('siBorrowDate'); if (bd && !bd.value) bd.value = today;
+      if (typeof spSetHtml === 'function') {
+        spSetHtml('siTable', '<div class="sp-muted">Loading inventory...</div>');
+        spSetHtml('siAccCards', '<div class="sp-muted">Loading accessories...</div>');
+      }
+      google.script.run
+        .withSuccessHandler(function(res){
+          if (!res || !res.success) {
+            var msg = (res && res.message) || 'Cannot load inventory';
+            inlineError('siTable', 'Inventory Error', msg, 'initStockInventoryModule(true)');
+            if (window.Swal) window.Swal.fire('Inventory Error', msg, 'error');
+            return;
+          }
+          try {
+            window.SI = window.SI || { cart: [] };
+            SI.loaded = true;
+            SI.raw = res;
+            SI.inv = res.inventory || [];
+            SI.acc = res.accessories || [];
+            if (!Array.isArray(SI.cart)) SI.cart = [];
+            if (typeof si_fillFilters === 'function') si_fillFilters();
+            if (typeof si_renderKpi === 'function') si_renderKpi();
+            if (typeof si_applyFilters === 'function') si_applyFilters();
+            if (typeof si_updateCart === 'function') si_updateCart();
+          } catch (err) {
+            var emsg = err && err.message ? err.message : String(err);
+            inlineError('siTable', 'Inventory Render Error', emsg, 'initStockInventoryModule(true)');
+            if (window.Swal) window.Swal.fire('Inventory Render Error', emsg, 'error');
+          }
+        })
+        .withFailureHandler(function(err){
+          var msg = err && err.message ? err.message : String(err);
+          inlineError('siTable', 'Inventory Error', msg, 'initStockInventoryModule(true)');
+          if (window.Swal) window.Swal.fire('Inventory Error', msg, 'error');
+        })
+        .si_getStockInventoryData(force === true);
     };
     window.siLoadInventory = function () { return window.initStockInventoryModule(false); };
   }
