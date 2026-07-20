@@ -6,7 +6,7 @@
 
 window.CES_CONFIG = {
   // IMPORTANT: After deploying Apps Script backend, paste the latest /exec URL here.
-  GAS_API_URL: 'https://script.google.com/macros/s/AKfycbxTkGt_pH5CvrSxnbjsYFB57pw9wM9lNYTeH1iqRplbYQc3pySHfrvkLXpdyA51ItVmtw/exec',
+  GAS_API_URL: 'https://script.google.com/macros/s/AKfycbzIjHfHdiwP40RzRo8bgmPfKQkT9JUELm5q0BDYQe2p2LnATXhxyHLi5xRKa4SaMIDxGQ/exec',
 
   CSI_SURVEY_URL: 'https://survey.nhealth-asia.com/s/cm1hci0mw00jf45vmps2myg1g',
 
